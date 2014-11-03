@@ -4,7 +4,7 @@ Various libraries for the LPC800 Mini-Kit and LPC Expresso 812 boards, used by m
 
 * lib_1-Wire
 
-1-Wire library. Depends on lib_delay.
+1-Wire library.
 
 * lib_DS18B20
   
