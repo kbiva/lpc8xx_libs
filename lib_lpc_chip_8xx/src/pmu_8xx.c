@@ -50,6 +50,7 @@
 /* Enter MCU Sleep mode */
 void Chip_PMU_SleepState(LPC_PMU_T *pPMU)
 {
+	SCB->SCR &= ~(1UL << SCB_SCR_SLEEPDEEP_Pos);
 	pPMU->PCON = PMU_PCON_PM_SLEEP;
 
 	/* Enter sleep mode */
