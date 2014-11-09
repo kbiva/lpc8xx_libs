@@ -12,7 +12,11 @@ DS18D20 digital temperature sensor library. Depends on lib_1-Wire.
   
 * lib_lpc_chip_8xx
 
-LPCOpen library for LPC8xx
+LPCOpen library for LPC8xx.
+
+* lib_nxp_lpcxpresso_812_board
+
+NXP LPCXpresso LPC812 board library.
 
 * lib_usart
 
