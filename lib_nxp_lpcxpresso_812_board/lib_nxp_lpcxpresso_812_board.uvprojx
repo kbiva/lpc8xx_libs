@@ -362,8 +362,8 @@
             <uC99>0</uC99>
             <useXO>0</useXO>
             <VariousControls>
-              <MiscControls>--gnu</MiscControls>
-              <Define>CORE_M0PLUS</Define>
+              <MiscControls></MiscControls>
+              <Define>CORE_M0PLUS,DEBUG_ENABLE</Define>
               <Undefine></Undefine>
               <IncludePath>.\inc;..\lib_lpc_chip_8xx\inc</IncludePath>
             </VariousControls>
