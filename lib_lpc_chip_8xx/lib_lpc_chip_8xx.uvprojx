@@ -51,8 +51,8 @@
           <CreateExecutable>0</CreateExecutable>
           <CreateLib>1</CreateLib>
           <CreateHexFile>0</CreateHexFile>
-          <DebugInformation>0</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <DebugInformation>1</DebugInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\lst\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -444,9 +444,29 @@
               <FilePath>.\inc\gpio_8xx.h</FilePath>
             </File>
             <File>
-              <FileName>i2c_8xx.h</FileName>
+              <FileName>i2c_common_8xx.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\inc\i2c_8xx.h</FilePath>
+              <FilePath>.\inc\i2c_common_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>i2cm_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\i2cm_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>i2cs_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\i2cs_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>iap.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\iap.h</FilePath>
+            </File>
+            <File>
+              <FileName>inmux_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\inmux_8xx.h</FilePath>
             </File>
             <File>
               <FileName>iocon_8xx.h</FileName>
@@ -499,9 +519,19 @@
               <FilePath>.\inc\romapi_8xx.h</FilePath>
             </File>
             <File>
+              <FileName>rtc_ut.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\rtc_ut.h</FilePath>
+            </File>
+            <File>
               <FileName>sct_8xx.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\inc\sct_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>sct_pwm_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\sct_pwm_8xx.h</FilePath>
             </File>
             <File>
               <FileName>sys_config.h</FileName>
@@ -517,6 +547,26 @@
               <FileName>spi_8xx.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\inc\spi_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>spi_common_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\spi_common_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>spim_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\spim_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>spis_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\spis_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>stopwatch.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\stopwatch.h</FilePath>
             </File>
             <File>
               <FileName>swm_8xx.h</FileName>
@@ -539,14 +589,9 @@
               <FilePath>.\inc\wwdt_8xx.h</FilePath>
             </File>
             <File>
-              <FileName>ARMCM0plus.h</FileName>
+              <FileName>cmsis.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\inc\ARMCM0plus.h</FilePath>
-            </File>
-            <File>
-              <FileName>system_ARMCM0plus.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\inc\system_ARMCM0plus.h</FilePath>
+              <FilePath>.\inc\cmsis.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -579,9 +624,24 @@
               <FilePath>.\src\gpio_8xx.c</FilePath>
             </File>
             <File>
-              <FileName>i2c_8xx.c</FileName>
+              <FileName>iap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\i2c_8xx.c</FilePath>
+              <FilePath>.\src\iap.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_common_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\i2c_common_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2cm_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\i2cm_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2cs_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\i2cs_8xx.c</FilePath>
             </File>
             <File>
               <FileName>iocon_8xx.c</FileName>
@@ -604,9 +664,19 @@
               <FilePath>.\src\ring_buffer.c</FilePath>
             </File>
             <File>
+              <FileName>rtc_ut.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\rtc_ut.c</FilePath>
+            </File>
+            <File>
               <FileName>sct_8xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\sct_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>sct_pwm_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\sct_pwm_8xx.c</FilePath>
             </File>
             <File>
               <FileName>syscon_8xx.c</FileName>
@@ -622,6 +692,21 @@
               <FileName>spi_8xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\spi_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>spim_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\spim_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>spis_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\spis_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>stopwatch_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\stopwatch_8xx.c</FilePath>
             </File>
             <File>
               <FileName>swm_8xx.c</FileName>

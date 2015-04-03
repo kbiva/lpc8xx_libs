@@ -58,10 +58,14 @@ extern "C" {
 #define SYSCTL_WAKEUP_USART0INT   (1 << 3)	/*!< USART0 interrupt wake-up */
 #define SYSCTL_WAKEUP_USART1INT   (1 << 4)	/*!< USART1 interrupt wake-up */
 #define SYSCTL_WAKEUP_USART2INT   (1 << 5)	/*!< USART2 interrupt wake-up */
-#define SYSCTL_WAKEUP_I2CINT      (1 << 8)	/*!< I2C interrupt wake-up */
+#define SYSCTL_WAKEUP_I2C0INT     (1 << 8)	/*!< I2C0 interrupt wake-up */
+#define SYSCTL_WAKEUP_I2C1INT     (1 << 7)	/*!< I2C1 interrupt wake-up [Available only on LPC82X] */
+#define SYSCTL_WAKEUP_I2C2INT     (1 << 21)	/*!< I2C2 interrupt wake-up [Available only on LPC82X] */
+#define SYSCTL_WAKEUP_I2C3INT     (1 << 22)	/*!< I2C3 interrupt wake-up [Available only on LPC82X] */
 #define SYSCTL_WAKEUP_WWDTINT     (1 << 12)	/*!< WWDT interrupt wake-up */
 #define SYSCTL_WAKEUP_BODINT      (1 << 13)	/*!< Brown Out Detect (BOD) interrupt wake-up */
 #define SYSCTL_WAKEUP_WKTINT      (1 << 15)	/*!< Self wake-up timer interrupt wake-up */
+#define SYSCTL_WAKEUP_I2CINT      SYSCTL_WAKEUP_I2C0INT /*!< Same as #SYSCTL_WAKEUP_I2CINT */
 
 /**
  * Deep sleep setup values
@@ -76,6 +80,7 @@ extern "C" {
 #define SYSCTL_SLPWAKE_IRC_PD    (1 << 1)	/*!< IRC oscillator power-down wake-up configuration */
 #define SYSCTL_SLPWAKE_FLASH_PD  (1 << 2)	/*!< Flash wake-up configuration */
 #define SYSCTL_SLPWAKE_BOD_PD    (1 << 3)	/*!< BOD wake-up configuration */
+#define SYSCTL_SLPWAKE_ADC_PD    (1 << 4)	/*!< ADC wake-up configuration [Available only on LPC82x] */
 #define SYSCTL_SLPWAKE_SYSOSC_PD (1 << 5)	/*!< System oscillator wake-up configuration */
 #define SYSCTL_SLPWAKE_WDTOSC_PD (1 << 6)	/*!< Watchdog oscillator wake-up configuration */
 #define SYSCTL_SLPWAKE_SYSPLL_PD (1 << 7)	/*!< System PLL wake-up configuration */
@@ -97,7 +102,8 @@ typedef struct {
 	uint32_t RESERVED0[4];
 	__IO uint32_t SYSOSCCTRL;			/*!< Offset: 0x020 System oscillator control (R/W) */
 	__IO uint32_t WDTOSCCTRL;			/*!< Offset: 0x024 Watchdog oscillator control (R/W) */
-	uint32_t RESERVED1[2];
+	__IO uint32_t IRCCTRL;              /*!< Offset: 0x028 IRC Control Register (Available only in LPC82X) */
+	uint32_t RESERVED1[1];
 	__IO uint32_t SYSRSTSTAT;			/*!< Offset: 0x030 System reset status Register (R/W ) */
 	uint32_t RESERVED2[3];
 	__IO uint32_t SYSPLLCLKSEL;			/*!< Offset: 0x040 System PLL clock source select (R/W) */
@@ -141,6 +147,63 @@ typedef struct {
 } LPC_SYSCTL_T;
 
 /**
+ * @brief IOCON Perpipheral Clock divider selction for input filter
+ * sampling clock
+ */
+typedef enum CHIP_PIN_CLKDIV {
+	IOCONCLKDIV0 = 0,				/*!< Clock divider 0 */
+	IOCONCLKDIV1,					/*!< Clock divider 1 */
+	IOCONCLKDIV2,					/*!< Clock divider 2 */
+	IOCONCLKDIV3,					/*!< Clock divider 3 */
+	IOCONCLKDIV4,					/*!< Clock divider 4 */
+	IOCONCLKDIV5,					/*!< Clock divider 5 */
+	IOCONCLKDIV6,					/*!< Clock divider 6 */
+	IOCONCLK_MAX = IOCONCLKDIV6		/*!< Top value used to reverse the dividers */
+} CHIP_PIN_CLKDIV_T;
+
+/* Reserved bits masks for registers */
+#define SYSCTL_SYSMEMREMAP_RESERVED     (~3)
+#define SYSCTL_SYSPLLCTRL_RESERVED      (~0x7f)
+#define SYSCTL_SYSPLLSTAT_RESERVED      (~1)
+#define SYSCTL_SYSOSCCTRL_RESERVED      (~3)
+#define SYSCTL_WDTOSCCTRL_RESERVED      (~0x1ff)
+#define SYSCTL_SYSRSTSTAT_RESERVED      (~0x1f)
+#define SYSCTL_SYSPLLCLKSEL_RESERVED    (~3)
+#define SYSCTL_SYSPLLCLKUEN_RESERVED    (~1)
+#define SYSCTL_MAINCLKSEL_RESERVED      (~3)
+#define SYSCTL_MAINCLKUEN_RESERVED      (~1)
+#define SYSCTL_SYSAHBCLKDIV_RESERVED    (~0xff)
+#define SYSCTL_UARTCLKDIV_RESERVED      (~0xff)
+#define SYSCTL_CLKOUTSEL_RESERVED       (~3)
+#define SYSCTL_CLKOUTUEN_RESERVED       (~1)
+#define SYSCTL_CLKOUTDIV_RESERVED       (~0xff)
+#define SYSCTL_UARTFRGDIV_RESERVED      (~0xff)
+#define SYSCTL_UARTFRGMULT_RESERVED     (~0xff)
+#define SYSCTL_EXTTRACECMD_RESERVED     (~3)
+#define SYSCTL_IOCONCLKDIV_RESERVED     (~0xff)
+#define SYSCTL_BODCTRL_RESERVED         (~0x1f)
+#define SYSCTL_SYSTCKCAL_RESERVED       0xfc000000
+#define SYSCTL_IRQLATENCY_RESERVED      (~0xff)
+#define SYSCTL_NMISRC_RESERVED          (~(0x1f|(1u<<31)))
+#define SYSCTL_PINTSEL_RESERVED         (~0x3f)
+#define SYSCTL_STARTERP0_RESERVED       (~0xff)
+#if defined(CHIP_LPC82X)
+#define SYSCTL_PRESETCTRL_RESERVED      0xfffe2000
+#define SYSCTL_SYSAHBCLKCTRL_RESERVED   0xda100000
+#define SYSCTL_PIOPORCAP0_RESERVED      0xfffc0000
+#define SYSCTL_STARTERP1_RESERVED       ((1<<2)|(1<<6)|(7<<9)|(1<<14)|0xff9f0000)
+#else
+#define SYSCTL_PRESETCTRL_RESERVED      0xffffe000
+#define SYSCTL_SYSAHBCLKCTRL_RESERVED   0xfff00000
+#define SYSCTL_PIOPORCAP0_RESERVED      0xffffc000
+#define SYSCTL_STARTERP1_RESERVED       ((1<<2)|(3<<6)|(7<<9)|(1<<14)|(0x1f<<16)|0xff800000)
+#endif
+/* The following have reserved bits, but they are specially handled elsewhere. */
+/* #define SYSCTL_PDSLEEPCFG_RESERVED      (~(1<<3)|(3<<4)|(1<<6)) */
+/* #define SYSCTL_PDAWAKECFG_RESERVED */
+/* #define SYSCTL_PDRUNCFG_RESERVED   */
+
+/**
  * System memory remap modes used to remap interrupt vectors
  */
 typedef enum CHIP_SYSCTL_BOOT_MODE_REMAP {
@@ -159,14 +222,20 @@ typedef enum {
 	RESET_USART0,		/*!< USART0 reset control */
 	RESET_USART1,		/*!< USART1 reset control */
 	RESET_USART2,		/*!< USART2 reset control */
-	RESET_I2C,			/*!< I2C reset control */
+	RESET_I2C0,			/*!< I2C0 reset control */
 	RESET_MRT,			/*!< MRT reset control */
 	RESET_SCT,			/*!< SCT reset control */
 	RESET_WKT,			/*!< Self wake-up timer (WKT) control */
 	RESET_GPIO,			/*!< GPIO reset control */
 	RESET_FLASH,		/*!< FLASH reset control */
-	RESET_ACMP			/*!< ACMP reset control */
+	RESET_ACMP,			/*!< ACMP reset control */
+	RESET_I2C1 = 14,	/*!< I2C1 reset control [Available only in LPC82x] */
+	RESET_I2C2,			/*!< I2C2 reset control [Available only in LPC82x] */
+	RESET_I2C3,			/*!< I2C3 reset control [Available only in LPC82x] */
 } CHIP_SYSCTL_PERIPH_RESET_T;
+
+/* Reset Alias */
+#define RESET_I2C    RESET_I2C0
 
 /**
  * Brown-out detector reset level
@@ -207,7 +276,7 @@ STATIC INLINE void Chip_SYSCTL_Map(CHIP_SYSCTL_BOOT_MODE_REMAP_T remap)
  */
 STATIC INLINE void Chip_SYSCTL_AssertPeriphReset(CHIP_SYSCTL_PERIPH_RESET_T periph)
 {
-	LPC_SYSCTL->PRESETCTRL &= ~(1 << (uint32_t) periph);
+	LPC_SYSCTL->PRESETCTRL &= ~((1 << (uint32_t) periph) | SYSCTL_PRESETCTRL_RESERVED);
 }
 
 /**
@@ -217,7 +286,7 @@ STATIC INLINE void Chip_SYSCTL_AssertPeriphReset(CHIP_SYSCTL_PERIPH_RESET_T peri
  */
 STATIC INLINE void Chip_SYSCTL_DeassertPeriphReset(CHIP_SYSCTL_PERIPH_RESET_T periph)
 {
-	LPC_SYSCTL->PRESETCTRL |= (1 << (uint32_t) periph);
+	LPC_SYSCTL->PRESETCTRL = (1 << (uint32_t) periph) | (LPC_SYSCTL->PRESETCTRL & ~SYSCTL_PRESETCTRL_RESERVED);
 }
 
 /**
@@ -238,7 +307,7 @@ STATIC INLINE void Chip_SYSCTL_PeriphReset(CHIP_SYSCTL_PERIPH_RESET_T periph)
  */
 STATIC INLINE uint32_t Chip_SYSCTL_GetSystemRSTStatus(void)
 {
-	return LPC_SYSCTL->SYSRSTSTAT;
+	return LPC_SYSCTL->SYSRSTSTAT & ~SYSCTL_SYSRSTSTAT_RESERVED;
 }
 
 /**
@@ -259,7 +328,7 @@ STATIC INLINE void Chip_SYSCTL_ClearSystemRSTStatus(uint32_t reset)
  */
 STATIC INLINE uint32_t Chip_SYSCTL_GetPORPIOStatus(void)
 {
-	return LPC_SYSCTL->PIOPORCAP0;
+	return LPC_SYSCTL->PIOPORCAP0 & ~SYSCTL_PIOPORCAP0_RESERVED;
 }
 
 /**
@@ -282,7 +351,7 @@ STATIC INLINE void Chip_SYSCTL_SetBODLevels(CHIP_SYSCTL_BODRSTLVL_T rstlvl,
  */
 STATIC INLINE void Chip_SYSCTL_EnableBODReset(void)
 {
-	LPC_SYSCTL->BODCTRL |= (1 << 4);
+	LPC_SYSCTL->BODCTRL = (1 << 4) | (LPC_SYSCTL->BODCTRL & ~SYSCTL_BODCTRL_RESERVED);
 }
 
 /**
@@ -291,7 +360,7 @@ STATIC INLINE void Chip_SYSCTL_EnableBODReset(void)
  */
 STATIC INLINE void Chip_SYSCTL_DisableBODReset(void)
 {
-	LPC_SYSCTL->BODCTRL &= ~(1 << 4);
+	LPC_SYSCTL->BODCTRL &= ~((1 << 4) | SYSCTL_BODCTRL_RESERVED);
 }
 
 /**
@@ -322,7 +391,7 @@ STATIC INLINE void Chip_SYSCTL_SetIRQLatency(uint32_t latency)
  */
 STATIC INLINE uint32_t Chip_SYSCTL_GetIRQLatency(void)
 {
-	return LPC_SYSCTL->IRQLATENCY;
+	return LPC_SYSCTL->IRQLATENCY & ~SYSCTL_IRQLATENCY_RESERVED;
 }
 
 /**
@@ -334,6 +403,10 @@ STATIC INLINE uint32_t Chip_SYSCTL_GetIRQLatency(void)
  */
 STATIC INLINE void Chip_SYSCTL_SetNMISource(uint32_t intsrc)
 {
+    /* Disable NMI first */
+    LPC_SYSCTL->NMISRC &= ~(SYSCTL_NMISRC_ENABLE | SYSCTL_NMISRC_RESERVED);
+    
+    /* Set new NMI source. */
 	LPC_SYSCTL->NMISRC = intsrc;
 }
 
@@ -343,7 +416,7 @@ STATIC INLINE void Chip_SYSCTL_SetNMISource(uint32_t intsrc)
  */
 STATIC INLINE void Chip_SYSCTL_EnableNMISource(void)
 {
-	LPC_SYSCTL->NMISRC |= SYSCTL_NMISRC_ENABLE;
+	LPC_SYSCTL->NMISRC = SYSCTL_NMISRC_ENABLE | (LPC_SYSCTL->NMISRC & ~SYSCTL_NMISRC_RESERVED);
 }
 
 /**
@@ -352,7 +425,7 @@ STATIC INLINE void Chip_SYSCTL_EnableNMISource(void)
  */
 STATIC INLINE void Chip_SYSCTL_DisableNMISource(void)
 {
-	LPC_SYSCTL->NMISRC &= ~(SYSCTL_NMISRC_ENABLE);
+	LPC_SYSCTL->NMISRC &= ~(SYSCTL_NMISRC_ENABLE | SYSCTL_NMISRC_RESERVED);
 }
 
 /**
@@ -362,7 +435,7 @@ STATIC INLINE void Chip_SYSCTL_DisableNMISource(void)
  * @return	Nothing
  * @note	For each pin (0-7) that supports an interrupt, the pin number is assigned
  * to that interrupt with this function. Values 0-17 map to pins PIO0-0 to
- * PIO0-17
+ * PIO0-17 (For LPC82X Values from 0-28 could be used for PIO0-28).
  */
 STATIC INLINE void Chip_SYSCTL_SetPinInterrupt(uint32_t intno, uint32_t pin)
 {
@@ -378,7 +451,7 @@ STATIC INLINE void Chip_SYSCTL_SetPinInterrupt(uint32_t intno, uint32_t pin)
  */
 STATIC INLINE void Chip_SYSCTL_EnablePINTWakeup(uint32_t pin)
 {
-	LPC_SYSCTL->STARTERP0 |= (1 << pin);
+	LPC_SYSCTL->STARTERP0 = (1 << pin) | (LPC_SYSCTL->STARTERP0 & ~SYSCTL_STARTERP0_RESERVED);
 }
 
 /**
@@ -389,7 +462,7 @@ STATIC INLINE void Chip_SYSCTL_EnablePINTWakeup(uint32_t pin)
  */
 STATIC INLINE void Chip_SYSCTL_DisablePINTWakeup(uint32_t pin)
 {
-	LPC_SYSCTL->STARTERP0 &= ~(1 << pin);
+	LPC_SYSCTL->STARTERP0 &= ~((1 << pin) | SYSCTL_STARTERP0_RESERVED);
 }
 
 /**
@@ -399,7 +472,7 @@ STATIC INLINE void Chip_SYSCTL_DisablePINTWakeup(uint32_t pin)
  */
 STATIC INLINE void Chip_SYSCTL_EnablePeriphWakeup(uint32_t periphmask)
 {
-	LPC_SYSCTL->STARTERP1 |= periphmask;
+	LPC_SYSCTL->STARTERP1 = periphmask | (LPC_SYSCTL->STARTERP0 & ~SYSCTL_STARTERP0_RESERVED);
 }
 
 /**
@@ -409,7 +482,7 @@ STATIC INLINE void Chip_SYSCTL_EnablePeriphWakeup(uint32_t periphmask)
  */
 STATIC INLINE void Chip_SYSCTL_DisablePeriphWakeup(uint32_t periphmask)
 {
-	LPC_SYSCTL->STARTERP1 &= ~periphmask;
+	LPC_SYSCTL->STARTERP1 &= ~(periphmask | SYSCTL_STARTERP1_RESERVED);
 }
 
 /**

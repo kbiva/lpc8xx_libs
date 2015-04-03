@@ -61,7 +61,7 @@ void Chip_ACMP_Deinit(LPC_CMP_T *pACMP)
 /* Clears the ACMP interrupt (EDGECLR bit) */
 void Chip_ACMP_EdgeClear(LPC_CMP_T *pACMP)
 {
-	uint32_t reg = pACMP->CTRL;
+	uint32_t reg = pACMP->CTRL & ~ACMP_CTRL_RESERVED;
 
 	/* Toggle EDGECLR bit high and then low */
 	pACMP->CTRL = reg | ACMP_EDGECLR_BIT;
@@ -71,7 +71,7 @@ void Chip_ACMP_EdgeClear(LPC_CMP_T *pACMP)
 /* Sets up ACMP edge selection */
 void Chip_ACMP_SetEdgeSelection(LPC_CMP_T *pACMP, ACMP_EDGESEL_T edgeSel)
 {
-	uint32_t reg = pACMP->CTRL & ~ACMP_EDGESEL_MASK;
+	uint32_t reg = pACMP->CTRL & ~(ACMP_EDGESEL_MASK | ACMP_CTRL_RESERVED);
 
 	/* Select edge for COMPEDGE */
 	pACMP->CTRL = reg | (uint32_t) edgeSel;
@@ -80,25 +80,25 @@ void Chip_ACMP_SetEdgeSelection(LPC_CMP_T *pACMP, ACMP_EDGESEL_T edgeSel)
 /* Selects positive voltage input */
 void Chip_ACMP_SetPosVoltRef(LPC_CMP_T *pACMP, ACMP_POS_INPUT_T Posinput)
 {
-	uint32_t reg = pACMP->CTRL & ~ACMP_COMPVPSEL_MASK;
+	uint32_t reg = pACMP->CTRL & ~(ACMP_COMPVPSEL_MASK | ACMP_CTRL_RESERVED);
 
 	/* Select positive input */
-	pACMP->CTRL = reg | Posinput;
+	pACMP->CTRL = reg | (uint32_t) Posinput;
 }
 
 /* Selects negative voltage input */
 void Chip_ACMP_SetNegVoltRef(LPC_CMP_T *pACMP, ACMP_NEG_INPUT_T Neginput)
 {
-	uint32_t reg = pACMP->CTRL & ~ACMP_COMPVMSEL_MASK;
+	uint32_t reg = pACMP->CTRL & ~(ACMP_COMPVMSEL_MASK | ACMP_CTRL_RESERVED);
 
 	/* Select negative input */
-	pACMP->CTRL = reg | Neginput;
+	pACMP->CTRL = reg | (uint32_t) Neginput;
 }
 
 /* Selects hysteresis level */
 void Chip_ACMP_SetHysteresis(LPC_CMP_T *pACMP, ACMP_HYS_T hys)
 {
-	uint32_t reg = pACMP->CTRL & ~ACMP_HYSTERESIS_MASK;
+	uint32_t reg = pACMP->CTRL & ~(ACMP_HYSTERESIS_MASK | ACMP_CTRL_RESERVED);
 
 	/* Select negative input */
 	pACMP->CTRL = reg | (uint32_t) hys;
@@ -109,7 +109,7 @@ void Chip_ACMP_SetupAMCPRefs(LPC_CMP_T *pACMP, ACMP_EDGESEL_T edgeSel,
 							 ACMP_POS_INPUT_T Posinput, ACMP_NEG_INPUT_T Neginput,
 							 ACMP_HYS_T hys)
 {
-	uint32_t reg = pACMP->CTRL & ~(ACMP_HYSTERESIS_MASK |
+	uint32_t reg = pACMP->CTRL & ~(ACMP_HYSTERESIS_MASK | ACMP_CTRL_RESERVED |
 								   ACMP_COMPVMSEL_MASK | ACMP_COMPVPSEL_MASK | ACMP_EDGESEL_MASK);
 
 	/* Select negative input */
@@ -120,11 +120,11 @@ void Chip_ACMP_SetupAMCPRefs(LPC_CMP_T *pACMP, ACMP_EDGESEL_T edgeSel,
 /* Sets up voltage ladder */
 void Chip_ACMP_SetupVoltLadder(LPC_CMP_T *pACMP, uint32_t ladsel, bool ladrefVDDCMP)
 {
-	uint32_t reg = pACMP->LAD & ~(ACMP_LADSEL_MASK | ACMP_LADREF_MASK);
+	uint32_t reg = pACMP->LAD & ~(ACMP_LADSEL_MASK | ACMP_LADREF_MASK | ACMP_LAD_RESERVED);
 
 	/* Setup voltage ladder and ladder reference */
 	if (ladrefVDDCMP) {
 		reg |= ACMP_LADREF_MASK;
 	}
-	pACMP->LAD = reg | ladsel;
+	pACMP->LAD = reg | (ladsel << 1);
 }

@@ -60,6 +60,21 @@ typedef struct {			/*!< (@ 0xA0004000) PIN_INT Structure */
 	__IO uint32_t PMCFG;	/*!< (@ 0xA0004030) GPIO pattern match interrupt bit slice configuration register */
 } LPC_PIN_INT_T;
 
+/* Reserved bits masks for registers */
+#define PININT_ISEL_RESERVED    (~0xff)
+#define PININT_IENR_RESERVED    (~0xff)
+#define PININT_SIENR_RESERVED   (~0xff)
+#define PININT_CIENR_RESERVED   (~0xff)
+#define PININT_IENF_RESERVED    (~0xff)
+#define PININT_SIENF_RESERVED   (~0xff)
+#define PININT_CIENF_RESERVED   (~0xff)
+#define PININT_RISE_RESERVED    (~0xff)
+#define PININT_FALL_RESERVED    (~0xff)
+#define PININT_IST_RESERVED     (~0xff)
+#define PININT_PMCTRL_RESERVED  (~0xff000003)
+#define PININT_PMSRC_RESERVED   0xff
+#define PININT_PMCFG_RESERVED   (1<<7)
+
 /**
  * LPC8xx Pin Interrupt and Pattern match engine register
  * bit fields and macros
@@ -140,7 +155,7 @@ STATIC INLINE void Chip_PININT_DeInit(LPC_PIN_INT_T *pPININT) {}
  */
 STATIC INLINE void Chip_PININT_SetPinModeEdge(LPC_PIN_INT_T *pPININT, uint32_t pins)
 {
-    pPININT->ISEL &= ~pins;
+    pPININT->ISEL &= ~(pins | PININT_ISEL_RESERVED);
 }
 
 /**
@@ -151,7 +166,7 @@ STATIC INLINE void Chip_PININT_SetPinModeEdge(LPC_PIN_INT_T *pPININT, uint32_t p
  */
 STATIC INLINE void Chip_PININT_SetPinModeLevel(LPC_PIN_INT_T *pPININT, uint32_t pins)
 {
-    pPININT->ISEL |= pins;
+    pPININT->ISEL = pins | (pPININT->ISEL & ~PININT_ISEL_RESERVED);
 }
 
 /**
@@ -164,7 +179,7 @@ STATIC INLINE void Chip_PININT_SetPinModeLevel(LPC_PIN_INT_T *pPININT, uint32_t 
  */
 STATIC INLINE uint32_t Chip_PININT_GetHighEnabled(LPC_PIN_INT_T *pPININT)
 {
-    return pPININT->IENR;
+    return pPININT->IENR & ~PININT_IENR_RESERVED;
 }
 
 /**
@@ -199,7 +214,7 @@ STATIC INLINE void Chip_PININT_DisableIntHigh(LPC_PIN_INT_T *pPININT, uint32_t p
  */
 STATIC INLINE uint32_t Chip_PININT_GetLowEnabled(LPC_PIN_INT_T *pPININT)
 {
-    return pPININT->IENF;
+    return pPININT->IENF & ~PININT_IENF_RESERVED;
 }
 
 /**
@@ -231,7 +246,7 @@ STATIC INLINE void Chip_PININT_DisableIntLow(LPC_PIN_INT_T *pPININT, uint32_t pi
  */
 STATIC INLINE uint32_t Chip_PININT_GetRiseStates(LPC_PIN_INT_T *pPININT)
 {
-    return pPININT->RISE;
+    return pPININT->RISE & ~PININT_RISE_RESERVED;
 }
 
 /**
@@ -252,7 +267,7 @@ STATIC INLINE void Chip_PININT_ClearRiseStates(LPC_PIN_INT_T *pPININT, uint32_t 
  */
 STATIC INLINE uint32_t Chip_PININT_GetFallStates(LPC_PIN_INT_T *pPININT)
 {
-    return pPININT->FALL;
+    return pPININT->FALL & ~PININT_FALL_RESERVED;
 }
 
 /**
@@ -273,7 +288,7 @@ STATIC INLINE void Chip_PININT_ClearFallStates(LPC_PIN_INT_T *pPININT, uint32_t 
  */
 STATIC INLINE uint32_t Chip_PININT_GetIntStatus(LPC_PIN_INT_T *pPININT)
 {
-    return pPININT->IST;
+    return pPININT->IST& ~PININT_IST_RESERVED;
 }
 
 /**
@@ -314,7 +329,7 @@ void Chip_PININT_SetPatternMatchConfig(LPC_PIN_INT_T *pPININT, Chip_PININT_BITSL
  */
 STATIC INLINE void Chip_PININT_EnablePatternMatch(LPC_PIN_INT_T *pPININT)
 {
-    pPININT->PMCTRL |= PININT_PMCTRL_PMATCH_SEL;
+    pPININT->PMCTRL = PININT_PMCTRL_PMATCH_SEL | (pPININT->PMCTRL & ~PININT_PMCTRL_RESERVED);
 }
 
 /**
@@ -324,7 +339,7 @@ STATIC INLINE void Chip_PININT_EnablePatternMatch(LPC_PIN_INT_T *pPININT)
  */
 STATIC INLINE void Chip_PININT_DisablePatternMatch(LPC_PIN_INT_T *pPININT)
 {
-    pPININT->PMCTRL &= ~PININT_PMCTRL_PMATCH_SEL;
+    pPININT->PMCTRL &= ~(PININT_PMCTRL_PMATCH_SEL | PININT_PMCTRL_RESERVED);
 }
 
 /**
@@ -334,7 +349,7 @@ STATIC INLINE void Chip_PININT_DisablePatternMatch(LPC_PIN_INT_T *pPININT)
  */
 STATIC INLINE void Chip_PININT_EnablePatternMatchRxEv(LPC_PIN_INT_T *pPININT)
 {
-    pPININT->PMCTRL |= PININT_PMCTRL_RXEV_ENA;
+    pPININT->PMCTRL = PININT_PMCTRL_RXEV_ENA | (pPININT->PMCTRL & ~PININT_PMCTRL_RESERVED);
 }
 
 /**
@@ -344,7 +359,7 @@ STATIC INLINE void Chip_PININT_EnablePatternMatchRxEv(LPC_PIN_INT_T *pPININT)
  */
 STATIC INLINE void Chip_PININT_DisablePatternMatchRxEv(LPC_PIN_INT_T *pPININT)
 {
-    pPININT->PMCTRL &= ~PININT_PMCTRL_RXEV_ENA;
+    pPININT->PMCTRL &= ~(PININT_PMCTRL_RXEV_ENA | PININT_PMCTRL_RESERVED);
 }
     
 /**

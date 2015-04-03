@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 #define PINASSIGN_IDX(movable)  (((movable) >> 4))
-#define PINSHIFT(movable)       (8 * ((movable) & (0xF)))
+#define PINSHIFT(movable)       (((movable) & 0xF) << 3)
 
 /*****************************************************************************
  * Public types/enumerations/variables

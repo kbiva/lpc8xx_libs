@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-/** @defgroup UARTROM_8XX CHIP: LPC8xx UART ROM Driver
+/** @defgroup UARTROM_8XX CHIP: LPC8xx UART ROM API declarations and functions
  * @ingroup CHIP_8XX_Drivers
  * @{
  */

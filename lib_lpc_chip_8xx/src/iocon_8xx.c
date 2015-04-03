@@ -116,3 +116,13 @@ void Chip_IOCON_PinSetI2CMode(LPC_IOCON_T *pIOCON, CHIP_PINx_T pin, CHIP_PIN_I2C
 	reg = pIOCON->PIO0[pin] & ~(PIN_I2CMODE_MASK);
 	pIOCON->PIO0[pin] = reg | (mode << PIN_I2CMODE_BITNUM);
 }
+
+/* Set all I/O Control pin muxing */
+void Chip_IOCON_SetPinMuxing(LPC_IOCON_T *pIOCON, const PINMUX_GRP_T* pinArray, uint32_t arrayLength)
+{
+	uint32_t ix;
+
+	for (ix = 0; ix < arrayLength; ix++ ) {
+		Chip_IOCON_PinMuxSet(pIOCON, pinArray[ix].pin, pinArray[ix].modefunc);
+	}
+}

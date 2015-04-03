@@ -57,6 +57,8 @@ typedef struct {
 	__IO uint32_t  TXDATA;			/*!< Transmit data register */
 	__IO uint32_t  BRG;				/*!< Baud Rate Generator register */
 	__IO uint32_t  INTSTAT;			/*!< Interrupt status register */
+	__IO uint32_t  OSR;             /*!< Oversampling Selection regiser */
+	__IO uint32_t  ADDR;            /*!< Address register for automatic address matching */
 } LPC_USART_T;
 
 /**
@@ -77,6 +79,18 @@ typedef struct {
 #define UART_CFG_SYNCMST        (0x01 << 14)	/*!< Select master mode (synchronous mode) enable bit */
 #define UART_CFG_LOOP           (0x01 << 15)	/*!< Loopback mode enable bit */
 
+#ifdef CHIP_LPC82X /* LPC82X specific bits */
+#define UART_CFG_OETA           (0x01 << 18)    /*!< Output Enable Turnaround time for RS485 */
+#define UART_CFG_AUTOADDR       (0x01 << 19)    /*!< Automatic address matching enable */
+#define UART_CFG_OESEL          (0x01 << 20)    /*!< Output enable select */
+#define UART_CFG_OEPOL          (0x01 << 21)    /*!< Output enable polarity */
+#define UART_CFG_RXPOL          (0x01 << 22)    /*!< Receive data polarity */
+#define UART_CFG_TXPOL          (0x01 << 22)    /*!< Transmit data polarity */
+#define UART_CFG_RESERVED       ((1<<1)|(1<<7)|(1<<8)|(1<<10)|(1<<13)|(3 << 16)|(0xffu<<24))
+#else
+#define UART_CFG_RESERVED       ((1<<1)|(1<<7)|(1<<8)|(1<<10)|(1<<13)|(0xffffu<<16))
+#endif
+
 /**
  * @brief UART CTRL register definitions
  */
@@ -85,6 +99,12 @@ typedef struct {
 #define UART_CTRL_TXDIS         (0x01 << 6)		/*!< Transmit disable bit */
 #define UART_CTRL_CC            (0x01 << 8)		/*!< Continuous Clock mode enable bit */
 #define UART_CTRL_CLRCC         (0x01 << 9)		/*!< Clear Continuous Clock bit */
+#ifdef CHIP_LPC82X
+#define UART_CTRL_AUTOBAUD      (1 << 16)       /*!< Enable UART Autobaud */
+#define UART_CTRL_RESERVED      (0xFFFEFCB9U)
+#else
+#define UART_CTRL_RESERVED      (1|(7<<3)|(1<<7)|0xfffffc00u)
+#endif
 
 /**
  * @brief UART STAT register definitions
@@ -103,6 +123,12 @@ typedef struct {
 #define UART_STAT_FRM_ERRINT    (0x01 << 13)		/*!< Framing Error interrupt flag */
 #define UART_STAT_PAR_ERRINT    (0x01 << 14)		/*!< Parity Error interrupt flag */
 #define UART_STAT_RXNOISEINT    (0x01 << 15)		/*!< Received Noise interrupt flag */
+#ifdef CHIP_LPC82X
+#define UART_STAT_ABERR         (0x01 << 16)        /*!< Auto baud error */
+#define UART_STAT_RESERVED      ((1<<7)|(1<<9)|(0xFFFEU<<16))
+#else
+#define UART_STAT_RESERVED      ((1<<7)|(1<<9)|(0xffffu<<16))
+#endif
 
 /**
  * @brief UART INTENSET/INTENCLR register definitions
@@ -117,6 +143,15 @@ typedef struct {
 #define UART_INTEN_FRAMERR      (0x01 << 13)		/*!< Frame error interrupt */
 #define UART_INTEN_PARITYERR    (0x01 << 14)		/*!< Parity error interrupt */
 #define UART_INTEN_RXNOISE      (0x01 << 15)		/*!< Received noise interrupt */
+#ifdef CHIP_LPC82X
+#define UART_INTEN_TXIDLE       (0x01 << 3)         /*!< TX Idle enable/clear */
+#define UART_INTEN_ABERR        (0x01 << 16)        /*!< Auto baud error */
+#define UART_INTEN_RESERVED     ((1<<1)|(1<<4)|(1<<7)|(3<<9)|(0xfffeu<<16))
+#define UART_INTSTAT_RESERVED   ((1<<1)|(1<<4)|(1<<7)|(3<<9)|(0xfffeu<<16))
+#else
+#define UART_INTEN_RESERVED     ((1<<1)|(3<<3)|(1<<7)|(3<<9)|(0xffffu<<16))
+#define UART_INTSTAT_RESERVED   ((1<<1)|(3<<3)|(1<<7)|(3<<9)|(0xffffu<<16))
+#endif
 
 /**
  * @brief	Enable the UART
@@ -125,7 +160,7 @@ typedef struct {
  */
 STATIC INLINE void Chip_UART_Enable(LPC_USART_T *pUART)
 {
-	pUART->CFG |= UART_CFG_ENABLE;
+	pUART->CFG = UART_CFG_ENABLE | (pUART->CFG & ~UART_CFG_RESERVED);
 }
 
 /**
@@ -135,7 +170,7 @@ STATIC INLINE void Chip_UART_Enable(LPC_USART_T *pUART)
  */
 STATIC INLINE void Chip_UART_Disable(LPC_USART_T *pUART)
 {
-	pUART->CFG &= ~UART_CFG_ENABLE;
+	pUART->CFG &= ~(UART_CFG_RESERVED | UART_CFG_ENABLE);
 }
 
 /**
@@ -145,7 +180,7 @@ STATIC INLINE void Chip_UART_Disable(LPC_USART_T *pUART)
  */
 STATIC INLINE void Chip_UART_TXEnable(LPC_USART_T *pUART)
 {
-	pUART->CTRL &= ~UART_CTRL_TXDIS;
+	pUART->CTRL &= ~(UART_CTRL_RESERVED | UART_CTRL_TXDIS);
 }
 
 /**
@@ -155,7 +190,7 @@ STATIC INLINE void Chip_UART_TXEnable(LPC_USART_T *pUART)
  */
 STATIC INLINE void Chip_UART_TXDisable(LPC_USART_T *pUART)
 {
-	pUART->CTRL |= UART_CTRL_TXDIS;
+	pUART->CTRL = UART_CTRL_TXDIS | (pUART->CTRL & ~UART_CTRL_RESERVED);
 }
 
 /**
@@ -221,7 +256,7 @@ STATIC INLINE void Chip_UART_IntDisable(LPC_USART_T *pUART, uint32_t intMask)
  */
 STATIC INLINE uint32_t Chip_UART_GetIntsEnabled(LPC_USART_T *pUART)
 {
-	return pUART->INTENSET;
+	return (pUART->INTENSET & ~UART_INTEN_RESERVED);
 }
 
 /**
@@ -234,7 +269,7 @@ STATIC INLINE uint32_t Chip_UART_GetIntsEnabled(LPC_USART_T *pUART)
  */
 STATIC INLINE uint32_t Chip_UART_GetIntStatus(LPC_USART_T *pUART)
 {
-	return pUART->INTSTAT;
+	return (pUART->INTSTAT & ~UART_INTSTAT_RESERVED);
 }
 
 /**
@@ -252,7 +287,7 @@ STATIC INLINE void Chip_UART_ConfigData(LPC_USART_T *pUART, uint32_t config)
 {
 	uint32_t reg;
 
-	reg = pUART->CFG & ~((0x3 << 2) | (0x3 << 4) | (0x1 << 6));
+	reg = pUART->CFG & ~((0x3 << 2) | (0x3 << 4) | (0x1 << 6) | UART_CFG_RESERVED);
 	pUART->CFG = reg | config;
 }
 
@@ -266,7 +301,7 @@ STATIC INLINE void Chip_UART_ConfigData(LPC_USART_T *pUART, uint32_t config)
  */
 STATIC INLINE uint32_t Chip_UART_GetStatus(LPC_USART_T *pUART)
 {
-	return pUART->STAT;
+	return (pUART->STAT & ~UART_STAT_RESERVED);
 }
 
 /**
@@ -281,6 +316,30 @@ STATIC INLINE uint32_t Chip_UART_GetStatus(LPC_USART_T *pUART)
 STATIC INLINE void Chip_UART_ClearStatus(LPC_USART_T *pUART, uint32_t stsMask)
 {
 	pUART->STAT = stsMask;
+}
+
+/**
+ * @brief	Set oversample value
+ * @param	pUART		: Pointer to selected UARTx peripheral
+ * @param	ovrVal		: Oversample value (can be from 5 to 16)
+ * @return	Nothing
+ * @note	The valid values for ovrVal is 5 to 16 (samples per bit)
+ */
+STATIC INLINE void Chip_UART_SetOSR(LPC_USART_T *pUART, uint32_t ovrVal)
+{
+	pUART->OSR = ovrVal - 1;
+}
+
+/**
+ * @brief	Set address for hardware address matching
+ * @param	pUART		: Pointer to selected UARTx peripheral
+ * @param	addr		: Address to compare (0x00 to 0xFF)
+ * @return	Nothing
+ * @note	The valid values for addr is 0x00 to 0xFF
+ */
+STATIC INLINE void Chip_UART_SetAddr(LPC_USART_T *pUART, uint32_t addr)
+{
+	pUART->ADDR = addr;
 }
 
 /**

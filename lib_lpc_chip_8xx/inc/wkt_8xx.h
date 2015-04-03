@@ -50,6 +50,8 @@ typedef struct {
 	__IO uint32_t  COUNT;	/*!< Offset: 0x000C Alarm/Wakeup Timer Counter register */
 } LPC_WKT_T;
 
+#define WKT_CTRL_RESERVED (~7)
+
 /**
  * WKT Control register bit fields & masks
  */
@@ -107,7 +109,7 @@ STATIC INLINE bool Chip_WKT_GetIntStatus(LPC_WKT_T *pWKT)
  */
 STATIC INLINE void Chip_WKT_ClearIntStatus(LPC_WKT_T *pWKT)
 {
-	pWKT->CTRL |= WKT_CTRL_ALARMFLAG;
+	pWKT->CTRL = WKT_CTRL_ALARMFLAG | (pWKT->CTRL & ~WKT_CTRL_RESERVED);
 }
 
 /**
@@ -117,7 +119,7 @@ STATIC INLINE void Chip_WKT_ClearIntStatus(LPC_WKT_T *pWKT)
  */
 STATIC INLINE void Chip_WKT_Stop(LPC_WKT_T *pWKT)
 {
-	pWKT->CTRL |= WKT_CTRL_CLEARCTR;
+	pWKT->CTRL = WKT_CTRL_CLEARCTR | (pWKT->CTRL & ~WKT_CTRL_RESERVED);
 }
 
 /**

@@ -47,35 +47,39 @@
  * Public functions
  ****************************************************************************/
 
-/* Initialize SCT */
-void Chip_SCT_Init(LPC_SCT_T *pSCT)
+/* Setup the OUTPUT pin corresponding to the PWM index */
+void Chip_SCTPWM_SetOutPin(LPC_SCT_T *pSCT, uint8_t index, uint8_t pin)
 {
-	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SCT);
-	Chip_SYSCTL_PeriphReset(RESET_SCT);
+	int ix = (int) index;
+	pSCT->EV[ix].CTRL = index | (1 << 12);
+	pSCT->EV[ix].STATE = 1;
+	pSCT->OUT[pin].SET = 1;
+	pSCT->OUT[pin].CLR = 1 << ix;
+
+	/* Clear the output in-case of conflict */
+	pSCT->RES = (pSCT->RES & ~(3 << (pin << 1))) | (0x01 << (pin << 1));
+
+	/* Set and Clear do not depend on direction */
+	pSCT->OUTPUTDIRCTRL = (pSCT->OUTPUTDIRCTRL & ~((3 << (pin << 1))|SCT_OUTPUTDIRCTRL_RESERVED));
 }
 
-/* Shutdown SCT */
-void Chip_SCT_DeInit(LPC_SCT_T *pSCT)
+/* Set the PWM frequency */
+void Chip_SCTPWM_SetRate(LPC_SCT_T *pSCT, uint32_t freq)
 {
-	Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SCT);
-}
+	uint32_t rate;
 
-/* Set/Clear SCT control register */
-void Chip_SCT_SetClrControl(LPC_SCT_T *pSCT, uint32_t value, FunctionalState ena)
-{
-	if (ena == ENABLE) {
-		Chip_SCT_SetControl(pSCT, value);
-	}
-	else {
-		Chip_SCT_ClearControl(pSCT, value);
-	}
-}
+	rate = Chip_Clock_GetSystemClockRate() / freq;;
 
-/* Set Conflict resolution */
-void Chip_SCT_SetConflictResolution(LPC_SCT_T *pSCT, uint8_t outnum, uint8_t value)
-{
-	uint32_t tem;
-	
-	tem = pSCT->RES & ~((0x03 << (2 * outnum))|SCT_RES_RESERVED);
-	pSCT->RES = tem | (value << (2 * outnum));
+	/* Stop the SCT before configuration */
+	Chip_SCTPWM_Stop(pSCT);
+
+	/* Set MATCH0 for max limit */
+	pSCT->REGMODE_U = 0;
+	Chip_SCT_SetMatchCount(pSCT, SCT_MATCH_0, 0);
+	Chip_SCT_SetMatchReload(pSCT, SCT_MATCH_0, rate);
+	pSCT->EV[0].CTRL = 1 << 12;
+	pSCT->EV[0].STATE = 1;
+
+	/* Set SCT Counter to count 32-bits and reset to 0 after reaching MATCH0 */
+	Chip_SCT_Config(pSCT, SCT_CONFIG_32BIT_COUNTER | SCT_CONFIG_AUTOLIMIT_L);
 }

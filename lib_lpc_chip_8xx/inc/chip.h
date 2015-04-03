@@ -67,22 +67,29 @@ extern "C" {
 #define LPC_MRT_BASE          (0x40004000UL)
 #define LPC_WKT_BASE          (0x40008000UL)
 #define LPC_SWM_BASE          (0x4000C000UL)
+#define LPC_ADC_BASE          (0x4001C000UL)  /* Available only on LPC82x */
 #define LPC_PMU_BASE          (0x40020000UL)
 #define LPC_CMP_BASE          (0x40024000UL)
+#define LPC_DMATIRGMUX_BASE   (0x40028000UL)  /* Available only on LPC82x */
+#define LPC_INMUX_BASE        (0x4002C000UL)  /* Available only on LPC82x */
 
 #define LPC_FMC_BASE          (0x40040000UL)
 #define LPC_IOCON_BASE        (0x40044000UL)
 #define LPC_SYSCTL_BASE       (0x40048000UL)
-#define LPC_I2C_BASE          (0x40050000UL)
+#define LPC_I2C0_BASE         (0x40050000UL)
+#define LPC_I2C1_BASE         (0x40054000UL)  /* Available only on LPC82x */
 #define LPC_SPI0_BASE         (0x40058000UL)
 #define LPC_SPI1_BASE         (0x4005C000UL)
 #define LPC_USART0_BASE       (0x40064000UL)
 #define LPC_USART1_BASE       (0x40068000UL)
 #define LPC_USART2_BASE       (0x4006C000UL)
+#define LPC_I2C2_BASE         (0x40070000UL)  /* Available only on LPC82x */
+#define LPC_I2C3_BASE         (0x40074000UL)  /* Available only on LPC82x */
 
 /* AHB peripherals */
 #define LPC_CRC_BASE          (0x50000000UL)
 #define LPC_SCT_BASE          (0x50004000UL)
+#define LPC_DMA_BASE          (0x50008000UL)  /* Available only on LPC82x */
 
 #define LPC_GPIO_PORT_BASE    (0xA0000000UL)
 #define LPC_PIN_INT_BASE      (0xA0004000UL)
@@ -105,6 +112,36 @@ extern "C" {
 #define LPC_CMP             ((LPC_CMP_T         *) LPC_CMP_BASE)
 #define LPC_FMC             ((LPC_FMC_T         *) LPC_FMC_BASE)
 #define LPC_MRT             ((LPC_MRT_T         *) LPC_MRT_BASE)
+#define LPC_I2C0            ((LPC_I2C_T         *) LPC_I2C0_BASE)
+
+#ifdef CHIP_LPC82X
+/* Peripherals available only on LPC82x */
+#define LPC_ADC             ((LPC_ADC_T         *) LPC_ADC_BASE)
+#define LPC_I2C1            ((LPC_I2C_T         *) LPC_I2C1_BASE)
+#define LPC_I2C2            ((LPC_I2C_T         *) LPC_I2C2_BASE)
+#define LPC_I2C3            ((LPC_I2C_T         *) LPC_I2C3_BASE)
+#define LPC_DMA             ((LPC_DMA_T         *) LPC_DMA_BASE)
+#define LPC_DMATRIGMUX      ((LPC_DMATRIGMUX_T  *) LPC_DMATIRGMUX_BASE)
+#define LPC_INMUX           ((LPC_INMUX_T       *) LPC_INMUX_BASE)
+#endif
+
+/* Base address Alias list */
+#define LPC_I2C_BASE         LPC_I2C0_BASE
+#define LPC_I2C              LPC_I2C0
+#define LPC_SYSCON           LPC_SYSCTL
+
+/* IRQ Handler alias list */
+#ifdef CHIP_LPC82X
+#define I2C_IRQHandler       I2C0_IRQHandler
+#define PININT0_IRQHandler   PIN_INT0_IRQHandler
+#define PININT1_IRQHandler   PIN_INT1_IRQHandler
+#define PININT2_IRQHandler   PIN_INT2_IRQHandler
+#define PININT3_IRQHandler   PIN_INT3_IRQHandler
+#define PININT4_IRQHandler   PIN_INT4_IRQHandler
+#define PININT5_IRQHandler   PIN_INT5_IRQHandler
+#define PININT6_IRQHandler   PIN_INT6_IRQHandler
+#define PININT7_IRQHandler   PIN_INT7_IRQHandler
+#endif
 
 /**
  * @}
@@ -151,8 +188,17 @@ extern const uint32_t ExtRateIn;
 #include "wkt_8xx.h"
 #include "wwdt_8xx.h"
 #include "sct_8xx.h"
+#include "sct_pwm_8xx.h"
 #include "spi_8xx.h"
-#include "i2c_8xx.h"
+#include "i2cm_8xx.h"
+#include "i2cs_8xx.h"
+#include "spim_8xx.h"
+#include "spis_8xx.h"
+#ifdef CHIP_LPC82X
+#include "adc_8xx.h"
+#include "dma_8xx.h"
+#include "inmux_8xx.h"
+#endif
 
 /** @defgroup SUPPORT_8XX_FUNC CHIP: LPC8xx support functions
  * @ingroup CHIP_8XX_Drivers
@@ -178,6 +224,20 @@ void SystemCoreClockUpdate(void);
  * system clocking prior to the application starting.
  */
 void Chip_SystemInit(void);
+
+/**
+ * @brief	Clock and PLL initialization based on the external oscillator
+ * @return	None
+ * @note	This function assumes an external crystal oscillator
+ * frequency of 12MHz.
+ */
+void Chip_SetupXtalClocking(void);
+
+/**
+ * @brief	Clock and PLL initialization based on the internal oscillator
+ * @return	None
+ */
+void Chip_SetupIrcClocking(void);
 
 /**
  * @}

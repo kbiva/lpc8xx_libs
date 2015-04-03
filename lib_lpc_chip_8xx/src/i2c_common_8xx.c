@@ -1,8 +1,8 @@
 /*
- * @brief LPC8xx State Configurable Timer driver
+ * @brief LPC15xx I2C Common driver
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2013
+ * Copyright(C) NXP Semiconductors, 2014
  * All rights reserved.
  *
  * @par
@@ -43,39 +43,55 @@
  * Private functions
  ****************************************************************************/
 
+/* Get the RESET ID corresponding to the given I2C base */
+static CHIP_SYSCTL_PERIPH_RESET_T I2C_GetResetID(LPC_I2C_T *pI2C)
+{
+	uint32_t base = (uint32_t) pI2C;
+	switch (base) {
+		case LPC_I2C1_BASE:
+			return RESET_I2C1;
+		case LPC_I2C2_BASE:
+			return RESET_I2C2;
+		case LPC_I2C3_BASE:
+			return RESET_I2C3;
+		default:
+			return RESET_I2C0;
+	}
+}
+
+/* Get the CLOCK ID corresponding to the given I2C base */
+static CHIP_SYSCTL_CLOCK_T I2C_GetClockID(LPC_I2C_T *pI2C)
+{
+	uint32_t base = (uint32_t) pI2C;
+	switch (base) {
+		case LPC_I2C1_BASE:
+			return SYSCTL_CLOCK_I2C1;
+		case LPC_I2C2_BASE:
+			return SYSCTL_CLOCK_I2C2;
+		case LPC_I2C3_BASE:
+			return SYSCTL_CLOCK_I2C3;
+		default:
+			return SYSCTL_CLOCK_I2C0;
+	}
+}
+
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
 
-/* Initialize SCT */
-void Chip_SCT_Init(LPC_SCT_T *pSCT)
+/* Initializes the LPC_I2C peripheral */
+void Chip_I2C_Init(LPC_I2C_T *pI2C)
 {
-	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SCT);
-	Chip_SYSCTL_PeriphReset(RESET_SCT);
+	/* Enable I2C clock */
+	Chip_Clock_EnablePeriphClock(I2C_GetClockID(pI2C));
+
+	/* Peripheral reset control to I2C */
+	Chip_SYSCTL_PeriphReset(I2C_GetResetID(pI2C));
 }
 
-/* Shutdown SCT */
-void Chip_SCT_DeInit(LPC_SCT_T *pSCT)
+/* Shuts down the I2C controller block */
+void Chip_I2C_DeInit(LPC_I2C_T *pI2C)
 {
-	Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SCT);
-}
-
-/* Set/Clear SCT control register */
-void Chip_SCT_SetClrControl(LPC_SCT_T *pSCT, uint32_t value, FunctionalState ena)
-{
-	if (ena == ENABLE) {
-		Chip_SCT_SetControl(pSCT, value);
-	}
-	else {
-		Chip_SCT_ClearControl(pSCT, value);
-	}
-}
-
-/* Set Conflict resolution */
-void Chip_SCT_SetConflictResolution(LPC_SCT_T *pSCT, uint8_t outnum, uint8_t value)
-{
-	uint32_t tem;
-	
-	tem = pSCT->RES & ~((0x03 << (2 * outnum))|SCT_RES_RESERVED);
-	pSCT->RES = tem | (value << (2 * outnum));
+	/* Disable I2C clock */
+	Chip_Clock_DisablePeriphClock(I2C_GetClockID(pI2C));
 }

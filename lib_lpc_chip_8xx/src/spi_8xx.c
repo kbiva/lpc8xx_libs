@@ -105,62 +105,26 @@ uint32_t Chip_SPI_CalClkRateDivider(LPC_SPI_T *pSPI, uint32_t bitRate)
 	return DivVal;
 }
 
-/* Initialize the SPI */
-void Chip_SPI_Init(LPC_SPI_T *pSPI, SPI_CONFIG_T *pConfig)
-{
-	uint32_t EnStat = pSPI->CFG & SPI_CFG_SPI_EN;
-
-	Chip_Clock_EnablePeriphClock((pSPI == LPC_SPI1) ? SYSCTL_CLOCK_SPI1 : SYSCTL_CLOCK_SPI0);
-	Chip_SYSCTL_PeriphReset((pSPI == LPC_SPI1) ? RESET_SPI1 : RESET_SPI0);
-
-	/* Disable before update CFG register */
-	if (EnStat) {
-		Chip_SPI_Disable(pSPI);
-	}
-
-	/* SPI Configurate */
-	pSPI->CFG = ((uint32_t) pConfig->ClockMode) | ((uint32_t) pConfig->DataOrder) | ((uint32_t) pConfig->Mode) |
-				((uint32_t) pConfig->SSELPol);
-
-	/* Rate Divider setting */
-	pSPI->DIV = SPI_DIV_VAL(pConfig->ClkDiv);
-
-	/* Clear status flag*/
-	Chip_SPI_ClearStatus(pSPI, SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR | SPI_STAT_CLR_SSA | SPI_STAT_CLR_SSD);
-
-	/* Return the previous state */
-	if (EnStat) {
-		Chip_SPI_Enable(pSPI);
-	}
-}
-
-/* De-initializes the SPI peripheral */
-void Chip_SPI_DeInit(LPC_SPI_T *pSPI)
-{
-	Chip_SPI_Disable(pSPI);
-
-	Chip_Clock_DisablePeriphClock((pSPI == LPC_SPI1) ? SYSCTL_CLOCK_SPI1 : SYSCTL_CLOCK_SPI0);
-}
-
 /* Configure SPI Delay parameters */
 void Chip_SPI_DelayConfig(LPC_SPI_T *pSPI, SPI_DELAY_CONFIG_T *pConfig)
 {
-	pSPI->DLY = SPI_DLY_PRE_DELAY(pConfig->PreDelay);
-	pSPI->DLY |= SPI_DLY_POST_DELAY(pConfig->PostDelay);
-	pSPI->DLY |= SPI_DLY_FRAME_DELAY(pConfig->FrameDelay);
+	uint32_t delayValue = SPI_DLY_PRE_DELAY(pConfig->PreDelay) |
+		SPI_DLY_POST_DELAY(pConfig->PostDelay)                 |
+		SPI_DLY_FRAME_DELAY(pConfig->FrameDelay);
 	if (pConfig->TransferDelay) {
-		pSPI->DLY |= SPI_DLY_TRANSFER_DELAY(pConfig->TransferDelay - 1);
+		delayValue |= SPI_DLY_TRANSFER_DELAY(pConfig->TransferDelay - 1);
 	}
+	pSPI->DLY = delayValue;
 }
 
 /* Disable/Enable Interrupt */
 void Chip_SPI_Int_Cmd(LPC_SPI_T *pSPI, uint32_t IntMask, FunctionalState NewState)
 {
 	if (NewState ==  ENABLE) {
-		pSPI->INTENSET |= IntMask;
+		pSPI->INTENSET = IntMask;
 	}
 	else {
-		pSPI->INTENCLR |= IntMask;
+		pSPI->INTENCLR = IntMask;
 	}
 }
 

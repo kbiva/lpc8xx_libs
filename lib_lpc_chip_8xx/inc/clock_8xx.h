@@ -96,7 +96,7 @@ typedef enum CHIP_SYSCTL_CLOCK {
 	SYSCTL_CLOCK_RAM,		/*!< RAM clock */
 	SYSCTL_CLOCK_FLASHREG,	/*!< FLASH register interface clock */
 	SYSCTL_CLOCK_FLASH,		/*!< FLASH array access clock */
-	SYSCTL_CLOCK_I2C,		/*!< I2C clock */
+	SYSCTL_CLOCK_I2C0,		/*!< I2C0 clock */
 	SYSCTL_CLOCK_GPIO,		/*!< GPIO clock */
 	SYSCTL_CLOCK_SWM,		/*!< Switch matrix clock */
 	SYSCTL_CLOCK_SCT,		/*!< State configurable timer clock */
@@ -110,8 +110,20 @@ typedef enum CHIP_SYSCTL_CLOCK {
 	SYSCTL_CLOCK_UART2,		/*!< UART2 clock */
 	SYSCTL_CLOCK_WWDT,		/*!< Watchdog clock */
 	SYSCTL_CLOCK_IOCON,		/*!< IOCON clock */
-	SYSCTL_CLOCK_ACOMP		/*!< Analog comparator clock */
+	SYSCTL_CLOCK_ACOMP,		/*!< Analog comparator clock */
+
+	/* LPC82x Specific Clocks */
+	SYSCTL_CLOCK_I2C1 = 21, /*!< I2C1 Clock */
+	SYSCTL_CLOCK_I2C2,      /*!< I2C2 Clock */
+	SYSCTL_CLOCK_I2C3,      /*!< I2C3 Clock */
+	SYSCTL_CLOCK_ADC,       /*!< 12-Bit ADC Clock */
+	SYSCTL_CLOCK_MTB = 26,  /*!< Macro Trace Buffer [USED FOR DEBUGGING] */
+	SYSCTL_CLOCK_DMA = 29,  /*!< DMA Clock */
 } CHIP_SYSCTL_CLOCK_T;
+
+/* Clock name alias */
+#define SYSCTL_CLOCK_I2C       SYSCTL_CLOCK_I2C0
+#define SYSCTL_CLOCK_ACMP     SYSCTL_CLOCK_ACOMP
 
 /**
  * Clock sources for CLKOUT
@@ -162,7 +174,7 @@ STATIC INLINE void Chip_Clock_SetWDTOSC(CHIP_WDTLFO_OSC_T wdtclk, uint8_t div)
  */
 STATIC INLINE CHIP_SYSCTL_MAINCLKSRC_T Chip_Clock_GetMainClockSource(void)
 {
-	return (CHIP_SYSCTL_MAINCLKSRC_T) (LPC_SYSCTL->MAINCLKSEL);
+	return (CHIP_SYSCTL_MAINCLKSRC_T) (LPC_SYSCTL->MAINCLKSEL & ~SYSCTL_MAINCLKSEL_RESERVED);
 }
 
 /**
@@ -184,7 +196,7 @@ STATIC INLINE void Chip_Clock_SetSysClockDiv(uint32_t div)
  */
 STATIC INLINE void Chip_Clock_EnablePeriphClock(CHIP_SYSCTL_CLOCK_T clk)
 {
-	LPC_SYSCTL->SYSAHBCLKCTRL |= (1 << clk);
+	LPC_SYSCTL->SYSAHBCLKCTRL = (1 << clk) | (LPC_SYSCTL->SYSAHBCLKCTRL & ~SYSCTL_SYSAHBCLKCTRL_RESERVED);
 }
 
 /**
@@ -194,7 +206,7 @@ STATIC INLINE void Chip_Clock_EnablePeriphClock(CHIP_SYSCTL_CLOCK_T clk)
  */
 STATIC INLINE void Chip_Clock_DisablePeriphClock(CHIP_SYSCTL_CLOCK_T clk)
 {
-	LPC_SYSCTL->SYSAHBCLKCTRL &= ~(1 << clk);
+	LPC_SYSCTL->SYSAHBCLKCTRL &= ~((1 << clk) | SYSCTL_SYSAHBCLKCTRL_RESERVED);
 }
 
 /**
@@ -216,7 +228,7 @@ STATIC INLINE void Chip_Clock_SetUARTClockDiv(uint32_t div)
  */
 STATIC INLINE uint32_t Chip_Clock_GetUARTClockDiv(void)
 {
-	return LPC_SYSCTL->UARTCLKDIV;
+	return LPC_SYSCTL->UARTCLKDIV & ~SYSCTL_UARTCLKDIV_RESERVED;
 }
 
 /**
@@ -230,12 +242,12 @@ STATIC INLINE void Chip_SYSCTL_SetUSARTFRGDivider(uint8_t div)
 }
 
 /**
- * @brief	Set The USART Fractional Generator Divider
+ * @brief	Get The USART Fractional Generator Divider
  * @return	Value of USART Fractional Generator Divider
  */
 STATIC INLINE uint32_t Chip_SYSCTL_GetUSARTFRGDivider(void)
 {
-	return LPC_SYSCTL->UARTFRGDIV;
+	return LPC_SYSCTL->UARTFRGDIV & ~SYSCTL_UARTFRGDIV_RESERVED;
 }
 
 /**
@@ -254,8 +266,33 @@ STATIC INLINE void Chip_SYSCTL_SetUSARTFRGMultiplier(uint8_t mult)
  */
 STATIC INLINE uint32_t Chip_SYSCTL_GetUSARTFRGMultiplier(void)
 {
-	return LPC_SYSCTL->UARTFRGMULT;
+	return LPC_SYSCTL->UARTFRGMULT & ~SYSCTL_UARTFRGMULT_RESERVED;
 }
+
+/**
+ * @brief	Set USART 0/1/2 UART base rate (up to main clock rate)
+ * @param	rate	: Desired rate for fractional divider/multipler output
+ * @param	fEnable	: true to use fractional clocking, false for integer clocking
+ * @return	Actual rate generated
+ * @note	USARTs 0 - 2 use the same base clock for their baud rate
+ *			basis. This function is used to generate that clock, while the
+ *			UART driver's SetBaud functions will attempt to get the closest
+ *			baud rate from this base clock without altering it. This needs
+ *			to be setup prior to individual UART setup.<br>
+ *			UARTs need a base clock 16x faster than the baud rate, so if you
+ *			need a 115.2Kbps baud rate, you will need a clock rate of at
+ *			least (115.2K * 16). The UART base clock is generated from the
+ *			main system clock, so fractional clocking may be the only
+ *			possible choice when using a low main system clock frequency.
+ *			Do not alter the FRGCLKDIV register after this call.
+ */
+uint32_t Chip_Clock_SetUSARTNBaseClockRate(uint32_t rate, bool fEnable);
+
+/**
+ * @brief	Get USART 0/1/2 UART base rate
+ * @return	USART 0/1/2 UART base rate
+ */
+uint32_t Chip_Clock_GetUSARTNBaseClockRate(void);
 
 /**
  * @brief	Returns the main oscillator clock rate
@@ -355,6 +392,23 @@ uint32_t Chip_Clock_GetMainClockRate(void);
  * @return	system clock rate
  */
 uint32_t Chip_Clock_GetSystemClockRate(void);
+
+/**
+ * @brief	Get IOCONCLKDIV clock rate
+ * @param	reg	: Divider register to get
+ * @return	The clock rate going to the IOCON glitch filter
+ * @note	Use 0 to disable, or a divider value of 1 to 255.
+ */
+uint32_t Chip_Clock_GetIOCONCLKDIVClockRate(CHIP_PIN_CLKDIV_T reg);
+
+/**
+ * @brief	Set IOCONCLKDIV divider
+ * @param	reg	: divider register to set
+ * @param	div	: divider value for IOCONCLKDIV[reg] clock
+ * @return	Nothing
+ * @note	Use 0 to disable, or a divider value of 1 to 255.
+ */
+void Chip_Clock_SetIOCONCLKDIV(CHIP_PIN_CLKDIV_T reg, uint8_t div);
 
 /**
  * @}

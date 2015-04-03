@@ -2,7 +2,7 @@
  * @brief LPC8xx FLASH Memory Controller (FMC) driver
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2012
+ * Copyright(C) NXP Semiconductors, 2013
  * All rights reserved.
  *
  * @par
@@ -51,8 +51,13 @@ typedef struct {
 	__IO uint32_t  FMSSTART;		/*!< Signature start address register */
 	__IO uint32_t  FMSSTOP;			/*!< Signature stop address register */
 	__I  uint32_t  RESERVED3;
-	__I  uint32_t  FMSW0;			/*!< Signature word regsiter */
+	__I  uint32_t  FMSW[1];			/*!< Signature word regsiter */
 } LPC_FMC_T;
+
+/* Reserved bits masks for registers */
+#define FMC_FLASHCFG_RESERVED       (~3)
+#define FMC_FMSSTART_RESERVED       0xfffe0000
+#define FMC_FMSSTOP_RESERVED        0x7ffe0000
 
 /**
  * @brief FLASH Access time definitions
@@ -71,16 +76,19 @@ typedef enum {
  */
 STATIC INLINE void Chip_FMC_SetFLASHAccess(FMC_FLASHTIM_T clks)
 {
-	uint32_t tmp = LPC_FMC->FLASHCFG & (~(0x3));
+	uint32_t tmp = LPC_FMC->FLASHCFG & (~((0x3)|FMC_FLASHCFG_RESERVED));
 
 	/* Don't alter upper bits */
 	LPC_FMC->FLASHCFG = tmp | clks;
 }
 
+/* Flash signature start and busy status bit */
+#define FMC_FLASHSIG_BUSY	(1UL << 31)
+
 /**
  * @brief	Start computation of a signature for a FLASH memory range
- * @param	start	: Starting FLASH address for computation
- * @param	stop	: Ending FLASH address for computation
+ * @param	start	: Starting FLASH address for computation, must be aligned on 16 byte boundary
+ * @param	stop	: Ending FLASH address for computation, must be aligned on 16 byte boundary
  * @return	Nothing
  * @note	Only bits 20..4 are used for the FLASH signature computation.
  *			Use the Chip_FMC_IsSignatureBusy() function to determine when the
@@ -89,8 +97,23 @@ STATIC INLINE void Chip_FMC_SetFLASHAccess(FMC_FLASHTIM_T clks)
  */
 STATIC INLINE void Chip_FMC_ComputeSignature(uint32_t start, uint32_t stop)
 {
-	LPC_FMC->FMSSTART = start;
-	LPC_FMC->FMSSTOP = stop | (1UL << 31);
+	LPC_FMC->FMSSTART = (start >> 4);
+	LPC_FMC->FMSSTOP = (stop >> 4) | FMC_FLASHSIG_BUSY;
+}
+
+/**
+ * @brief	Start computation of a signature for a FLASH memory address and block count
+ * @param	start	: Starting FLASH address for computation, must be aligned on 16 byte boundary
+ * @param	blocks	: Number of 16 byte blocks used for computation
+ * @return	Nothing
+ * @note	Only bits 20..4 are used for the FLASH signature computation.
+ *			Use the Chip_FMC_IsSignatureBusy() function to determine when the
+ *			signature computation operation is complete and the
+ *			Chip_FMC_GetSignature() function to get the computed signature.
+ */
+STATIC INLINE void Chip_FMC_ComputeSignatureBlocks(uint32_t start, uint32_t blocks)
+{
+	Chip_FMC_ComputeSignature(start, (start + (blocks * 16)));
 }
 
 /**
@@ -99,16 +122,17 @@ STATIC INLINE void Chip_FMC_ComputeSignature(uint32_t start, uint32_t stop)
  */
 STATIC INLINE bool Chip_FMC_IsSignatureBusy(void)
 {
-	return (bool) ((LPC_FMC->FMSSTOP & (1UL << 31)) != 0);
+	return (bool) ((LPC_FMC->FMSSTOP & FMC_FLASHSIG_BUSY) != 0);
 }
 
 /**
  * @brief	Returns the generated FLASH signature value
+ * @param	index	: Signature index, must be 0
  * @return	the generated FLASH signature value
  */
-STATIC INLINE uint32_t Chip_FMC_GetSignature(void)
+STATIC INLINE uint32_t Chip_FMC_GetSignature(int index)
 {
-	return LPC_FMC->FMSW0;
+	return LPC_FMC->FMSW[index];
 }
 
 /**

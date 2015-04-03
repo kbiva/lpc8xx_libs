@@ -77,12 +77,12 @@ static uint32_t Chip_Clock_GetWDTLFORate(uint32_t reg)
 	return wdtOSCRate[clk] / ((div + 1) << 1);
 }
 
-/* Compute a PLL frequency */
+/* Compute PLL frequency */
 static uint32_t Chip_Clock_GetPLLFreq(uint32_t PLLReg, uint32_t inputRate)
 {
-	uint32_t msel = ((PLLReg & 0x1F) + 1);
+	uint32_t m_val = ((PLLReg & 0x1F) + 1);
 
-	return inputRate * msel;
+	return (inputRate * m_val);
 }
 
 /*****************************************************************************
@@ -93,8 +93,10 @@ static uint32_t Chip_Clock_GetPLLFreq(uint32_t PLLReg, uint32_t inputRate)
 void Chip_Clock_SetSystemPLLSource(CHIP_SYSCTL_PLLCLKSRC_T src)
 {
 	LPC_SYSCTL->SYSPLLCLKSEL  = (uint32_t) src;
-	LPC_SYSCTL->SYSPLLCLKUEN  = 0;
-	LPC_SYSCTL->SYSPLLCLKUEN  = 1;
+    
+    /* sequnce a 0 followed by 1 to update PLL source selection */
+	LPC_SYSCTL->SYSPLLCLKUEN  = 0;  
+	LPC_SYSCTL->SYSPLLCLKUEN  = 1;  
 }
 
 /* Bypass System Oscillator and set oscillator frequency range */
@@ -116,6 +118,8 @@ void Chip_Clock_SetPLLBypass(bool bypass, bool highfr)
 void Chip_Clock_SetMainClockSource(CHIP_SYSCTL_MAINCLKSRC_T src)
 {
 	LPC_SYSCTL->MAINCLKSEL  = (uint32_t) src;
+    
+    /* sequnce a 0 followed by 1 to update MAINCLK source selection */
 	LPC_SYSCTL->MAINCLKUEN  = 0;
 	LPC_SYSCTL->MAINCLKUEN  = 1;
 }
@@ -124,6 +128,8 @@ void Chip_Clock_SetMainClockSource(CHIP_SYSCTL_MAINCLKSRC_T src)
 void Chip_Clock_SetCLKOUTSource(CHIP_SYSCTL_CLKOUTSRC_T src, uint32_t div)
 {
 	LPC_SYSCTL->CLKOUTSEL = (uint32_t) src;
+    
+    /* sequnce a 0 followed by 1 to update CLKOUT source selection */
 	LPC_SYSCTL->CLKOUTUEN = 0;
 	LPC_SYSCTL->CLKOUTUEN = 1;
 	LPC_SYSCTL->CLKOUTDIV = div;
@@ -132,7 +138,7 @@ void Chip_Clock_SetCLKOUTSource(CHIP_SYSCTL_CLKOUTSRC_T src, uint32_t div)
 /* Return estimated watchdog oscillator rate */
 uint32_t Chip_Clock_GetWDTOSCRate(void)
 {
-	return Chip_Clock_GetWDTLFORate(LPC_SYSCTL->WDTOSCCTRL);
+	return Chip_Clock_GetWDTLFORate(LPC_SYSCTL->WDTOSCCTRL & ~SYSCTL_WDTOSCCTRL_RESERVED);
 }
 
 /* Return System PLL input clock rate */
@@ -163,7 +169,7 @@ uint32_t Chip_Clock_GetSystemPLLInClockRate(void)
 /* Return System PLL output clock rate */
 uint32_t Chip_Clock_GetSystemPLLOutClockRate(void)
 {
-	return Chip_Clock_GetPLLFreq(LPC_SYSCTL->SYSPLLCTRL,
+	return Chip_Clock_GetPLLFreq((LPC_SYSCTL->SYSPLLCTRL & ~SYSCTL_SYSPLLCTRL_RESERVED),
 								 Chip_Clock_GetSystemPLLInClockRate());
 }
 
@@ -197,5 +203,91 @@ uint32_t Chip_Clock_GetMainClockRate(void)
 uint32_t Chip_Clock_GetSystemClockRate(void)
 {
 	/* No point in checking for divide by 0 */
-	return Chip_Clock_GetMainClockRate() / LPC_SYSCTL->SYSAHBCLKDIV;
+	return Chip_Clock_GetMainClockRate() / (LPC_SYSCTL->SYSAHBCLKDIV & ~SYSCTL_SYSAHBCLKDIV_RESERVED);
+}
+
+/* Get USART 0/1/2 UART base rate */
+uint32_t Chip_Clock_GetUSARTNBaseClockRate(void)
+{
+	uint64_t inclk;
+	uint32_t div;
+
+	div = (uint32_t) Chip_Clock_GetUARTClockDiv();
+	if (div == 0) {
+		/* Divider is 0 so UART clock is disabled */
+		inclk = 0;
+	}
+	else {
+		uint32_t mult, divf;
+
+		/* Input clock into FRG block is the divided main system clock */
+		inclk = (uint64_t) (Chip_Clock_GetMainClockRate() / div);
+
+		divf = Chip_SYSCTL_GetUSARTFRGDivider();
+		if (divf == 0xFF) {
+			/* Fractional part is enabled, get multiplier */
+			mult = (uint32_t) Chip_SYSCTL_GetUSARTFRGMultiplier();
+
+			/* Get fractional error */
+			inclk = (inclk * 256) / (uint64_t) (256 + mult);
+		}
+	}
+
+	return (uint32_t) inclk;
+}
+
+/* Set USART 0/1/2 UART base rate */
+uint32_t Chip_Clock_SetUSARTNBaseClockRate(uint32_t rate, bool fEnable)
+{
+	uint32_t div, inclk;
+
+	/* Input clock into FRG block is the main system clock */
+	inclk = Chip_Clock_GetMainClockRate();
+
+	/* Get integer divider for coarse rate */
+	div = inclk / rate;
+	if (div == 0) {
+		div = 1;
+	}
+
+	/* Approximated rate with only integer divider */
+	Chip_Clock_SetUARTClockDiv((uint8_t) div);
+
+	if (fEnable) {
+		uint32_t uart_fra_multiplier;
+
+		/* Reset FRG */
+		Chip_SYSCTL_PeriphReset(RESET_UARTFBRG);
+
+		/* Enable fractional divider */
+		Chip_SYSCTL_SetUSARTFRGDivider(0xFF);
+
+		/* Compute the fractional divisor (the lower byte is the
+		   fractional portion) */
+		uart_fra_multiplier = ((inclk / div) * 256) / rate;
+
+		/* ...just the fractional portion (the lower byte) */
+		Chip_SYSCTL_SetUSARTFRGMultiplier((uint8_t) uart_fra_multiplier);
+	}
+	else {
+		/* Disable fractional generator and use integer divider only */
+		Chip_SYSCTL_SetUSARTFRGDivider(0);
+	}
+
+	return Chip_Clock_GetUSARTNBaseClockRate();
+}
+
+/* Get the IOCONCLKDIV clock rate */
+uint32_t Chip_Clock_GetIOCONCLKDIVClockRate(CHIP_PIN_CLKDIV_T reg)
+{
+	uint32_t div = LPC_SYSCTL->IOCONCLKDIV[reg] & ~SYSCTL_IOCONCLKDIV_RESERVED;
+	uint32_t main_clk = Chip_Clock_GetMainClockRate();
+	
+	return (div == 0) ? 0 : (main_clk / div);
+}
+
+void Chip_Clock_SetIOCONCLKDIV(CHIP_PIN_CLKDIV_T reg, uint8_t div)
+{
+	int t_reg = IOCONCLK_MAX-reg;
+	LPC_SYSCTL->IOCONCLKDIV[t_reg] = div;
 }

@@ -57,6 +57,14 @@ typedef struct {				/*!< WWDT Structure         */
 	__IO uint32_t  WINDOW;		/*!< Watchdog timer window register. This register contains the Watchdog window value. */
 } LPC_WWDT_T;
 
+/* Reserved bits masks for registers */
+#define WWDT_MOD_RESERVED       (~0x3f)
+#define WWDT_TC_RESERVED        0xff000000
+#define WWDT_FEED_RESERVED      (~0xff)
+#define WWDT_TV_RESERVED        0xff000000
+#define WWDT_WARNINT_RESERVED   (~0x3ff)
+#define WWDT_WINDOW_RESERVED    0xff000000
+
 /**
  * @brief Watchdog Mode register definitions
  */
@@ -149,7 +157,7 @@ STATIC INLINE void Chip_WWDT_SetWindow(LPC_WWDT_T *pWWDT, uint32_t timeout)
  */
 STATIC INLINE void Chip_WWDT_SetOption(LPC_WWDT_T *pWWDT, uint32_t options)
 {
-	pWWDT->MOD |= options;
+	pWWDT->MOD = options | (pWWDT->MOD & ~WWDT_MOD_RESERVED);
 }
 
 /**

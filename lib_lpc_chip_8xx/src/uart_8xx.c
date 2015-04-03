@@ -157,16 +157,9 @@ int Chip_UART_ReadBlocking(LPC_USART_T *pUART, void *data, int numBytes)
 /* Set baud rate for UART */
 void Chip_UART_SetBaud(LPC_USART_T *pUART, uint32_t baudrate)
 {
-	uint32_t err, uart_fra_multiplier, baudRateGenerator;
-	uint32_t systemCoreClock = Chip_Clock_GetMainClockRate();
-
-	/* Calculate baudrate generator value */
-	baudRateGenerator = systemCoreClock / (16 * baudrate);
-	err = systemCoreClock - baudRateGenerator * 16 * baudrate;
-	uart_fra_multiplier = (err * 0xFF) / (baudRateGenerator * 16 * baudrate);
+	uint32_t baudRateGenerator;
+	baudRateGenerator = Chip_Clock_GetUSARTNBaseClockRate() / (16 * baudrate);
 	pUART->BRG = baudRateGenerator - 1;	/* baud rate */
-	Chip_SYSCTL_SetUSARTFRGDivider(0xFF);	/* value 0xFF is always used */
-	Chip_SYSCTL_SetUSARTFRGMultiplier(uart_fra_multiplier);
 }
 
 /* UART receive-only interrupt handler for ring buffers */

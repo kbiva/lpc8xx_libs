@@ -50,6 +50,10 @@ typedef struct {
 	__IO uint32_t DPDCTRL;	/*!< Offset: 0x014 Deep power-down control register (R/W) */
 } LPC_PMU_T;
 
+/* Reserved bits masks for registers */
+#define PMU_PCON_RESERVED      ((0xf<<4)|(0x6<<8)|0xfffff000)
+#define PMU_DPDCTRL_RESERVED   (~0xf)
+
 /**
  * @brief LPC8xx low power mode type definitions
  */
@@ -164,7 +168,7 @@ void Chip_PMU_Sleep(LPC_PMU_T *pPMU, CHIP_PMU_MCUPOWER_T SleepMode);
  */
 STATIC INLINE void Chip_PMU_DisableDeepPowerDown(LPC_PMU_T *pPMU)
 {
-	pPMU->PCON |= PMU_PCON_NODPD;
+	pPMU->PCON = PMU_PCON_NODPD | (pPMU->PCON & ~PMU_PCON_RESERVED);
 }
 
 /**
@@ -189,7 +193,7 @@ STATIC INLINE uint32_t Chip_PMU_GetSleepFlags(LPC_PMU_T *pPMU)
  */
 STATIC INLINE void Chip_PMU_ClearSleepFlags(LPC_PMU_T *pPMU, uint32_t flags)
 {
-	pPMU->PCON &= ~flags;
+	pPMU->PCON |= (flags & (~PMU_PCON_RESERVED));
 }
 
 /**
@@ -204,7 +208,7 @@ STATIC INLINE void Chip_PMU_ClearSleepFlags(LPC_PMU_T *pPMU, uint32_t flags)
  */
 STATIC INLINE void Chip_PMU_SetPowerDownControl(LPC_PMU_T *pPMU, uint32_t flags)
 {
-	pPMU->DPDCTRL |= flags;
+	pPMU->DPDCTRL = flags | (pPMU->DPDCTRL & ~PMU_DPDCTRL_RESERVED);
 }
 
 /**
@@ -219,7 +223,7 @@ STATIC INLINE void Chip_PMU_SetPowerDownControl(LPC_PMU_T *pPMU, uint32_t flags)
  */
 STATIC INLINE void Chip_PMU_ClearPowerDownControl(LPC_PMU_T *pPMU, uint32_t flags)
 {
-	pPMU->DPDCTRL &= ~flags;
+	pPMU->DPDCTRL &= ~(flags | PMU_DPDCTRL_RESERVED);
 }
 
 /**

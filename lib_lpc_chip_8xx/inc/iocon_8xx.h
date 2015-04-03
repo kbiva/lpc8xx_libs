@@ -41,7 +41,15 @@ extern "C" {
  * @{
  */
 
-#define NUM_IOCON_PIO  (18)
+#define NUM_IOCON_PIO  (29)
+
+/**
+ * @brief Array of IOCON pin definitions passed to Chip_IOCON_SetPinMuxing() must be in this format
+ */
+typedef struct {
+	uint32_t pin:8;			/* Pin number */
+	uint32_t modefunc:24;	/* Function and mode */
+} PINMUX_GRP_T;
 
 /**
  * @brief	IOCON register block structure
@@ -52,7 +60,7 @@ extern "C" {
  * Correct: LPC_IOCON->PIO0[IOCON_PIO0] = 0x1; // Enumeration PIO0 maps to pin 0
  */
 typedef struct {		/*!< (@ 0x40044000) IOCONFIG Structure     */
-	__IO uint32_t PIO0[NUM_IOCON_PIO + 1]; /* 1 added for reserved register */
+	__IO uint32_t PIO0[NUM_IOCON_PIO + 2]; /* 2 added for reserved register */
 } LPC_IOCON_T;
 
 /**
@@ -116,7 +124,21 @@ typedef enum CHIP_PINx {
 	IOCON_PIO15 =  0x0A,	/*!< PIN 15 */
 	IOCON_PIO16 =  0x09,	/*!< PIN 16 */
 	IOCON_PIO17 =  0x00,	/*!< PIN 17 */
-	IOCON_PIO_NUL = 0x0C	/*!< PIN NULL */
+	IOCON_PIO_NUL0 = 0x0C,	/*!< PIN NULL */
+
+	/* The following pins are not present in DIP8, TSSOP16 & TSSOP20 packages */
+	IOCON_PIO18 =  0x1E,	/*!< PIN 18 */
+	IOCON_PIO19 =  0x1D,	/*!< PIN 19 */
+	IOCON_PIO20 =  0x1C,	/*!< PIN 20 */
+	IOCON_PIO21 =  0x1B,	/*!< PIN 21 */
+	IOCON_PIO22 =  0x1A,	/*!< PIN 22 */
+	IOCON_PIO23 =  0x19,	/*!< PIN 23 */
+	IOCON_PIO24 =  0x18,	/*!< PIN 24 */
+	IOCON_PIO25 =  0x17,	/*!< PIN 25 */
+	IOCON_PIO26 =  0x16,	/*!< PIN 26 */
+	IOCON_PIO27 =  0x15,	/*!< PIN 27 */
+	IOCON_PIO28 =  0x14,	/*!< PIN 28 */
+	IOCON_PIO_NUL1 = 0x13,	/*!< PIN NULL */
 } CHIP_PINx_T;
 
 /**
@@ -140,20 +162,6 @@ typedef enum CHIP_PIN_SMODE {
 } CHIP_PIN_SMODE_T;
 
 /**
- * @brief IOCON Perpipheral Clock divider selction for input filter
- * sampling clock
- */
-typedef enum CHIP_PIN_CLKDIV {
-	IOCONCLKDIV0 = 0,	/*!< Clock divider 0 */
-	IOCONCLKDIV1 = 1,	/*!< Clock divider 1 */
-	IOCONCLKDIV2 = 2,	/*!< Clock divider 2 */
-	IOCONCLKDIV3 = 3,	/*!< Clock divider 3 */
-	IOCONCLKDIV4 = 4,	/*!< Clock divider 4 */
-	IOCONCLKDIV5 = 5,	/*!< Clock divider 5 */
-	IOCONCLKDIV6 = 6	/*!< Clock divider 6 */
-} CHIP_PIN_CLKDIV_T;
-
-/**
  * @brief IOCON I2C Modes enum (Only for I2C pins PIO0_10 and PIO0_11)
  */
 typedef enum CHIP_PIN_I2CMODE {
@@ -161,6 +169,27 @@ typedef enum CHIP_PIN_I2CMODE {
 	PIN_I2CMODE_GPIO = 1,		/*!< Standard I/O functionality */
 	PIN_I2CMODE_FASTPLUS = 2	/*!< I2C Fast plus mode */
 } CHIP_PIN_I2CMODE_T;
+
+/**
+ * @brief	Sets I/O Control pin mux
+ * @param	pIOCON		: The base of IOCON peripheral on the chip
+ * @param	pin			: GPIO pin to mux
+ * @param	modefunc	: OR'ed values or type IOCON_*
+ * @return	Nothing
+ */
+STATIC INLINE void Chip_IOCON_PinMuxSet(LPC_IOCON_T *pIOCON, uint8_t pin, uint32_t modefunc)
+{
+	pIOCON->PIO0[pin] = modefunc;
+}
+
+/**
+ * @brief	Set all I/O Control pin muxing
+ * @param	pIOCON	    : The base of IOCON peripheral on the chip
+ * @param	pinArray    : Pointer to array of pin mux selections
+ * @param	arrayLength : Number of entries in pinArray
+ * @return	Nothing
+ */
+void Chip_IOCON_SetPinMuxing(LPC_IOCON_T *pIOCON, const PINMUX_GRP_T* pinArray, uint32_t arrayLength);
 
 /**
  * @brief	Sets pull-up or pull-down mode for a pin

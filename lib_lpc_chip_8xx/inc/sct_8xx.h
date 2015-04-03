@@ -44,42 +44,40 @@ extern "C" {
 /*
  * @brief SCT Module configuration
  */
-#define CONFIG_SCT_nEV   (16)			/*!< Number of events */
-#define CONFIG_SCT_nRG   (16)			/*!< Number of match/compare registers */
-#define CONFIG_SCT_nOU   (16)			/*!< Number of outputs */
+#define CONFIG_SCT_nEV   (8)			/*!< Number of events */
+#define CONFIG_SCT_nRG   (8)			/*!< Number of match/compare registers */
+#define CONFIG_SCT_nOU   (6)			/*!< Number of outputs */
 
 /**
  * @brief State Configurable Timer register block structure
  */
 typedef struct {
-	__IO  uint32_t CONFIG;				/*!< Configuration Register */
+	__IO  uint32_t CONFIG;				/*!< configuration Register (offset (0x000) */
 	union {
-		__IO uint32_t CTRL_U;			/*!< Control Register */
+		__IO uint32_t CTRL_U;			/*!< control Register */
 		struct {
-			__IO uint16_t CTRL_L;		/*!< Low control register */
-			__IO uint16_t CTRL_H;		/*!< High control register */
+			__IO uint16_t CTRL_L;		/*!< low control register */
+			__IO uint16_t CTRL_H;		/*!< high control register */
 		};
 	};
 	union {
-		__IO uint32_t LIMIT;			/*!< limit Register */
+		__IO uint32_t LIMIT_U;			/*!< limit Register */
 		struct {
 			__IO uint16_t LIMIT_L;		/*!< limit register for counter L */
 			__IO uint16_t LIMIT_H;		/*!< limit register for counter H */
 		};
-
 	};
 
 	union {
-		__IO uint32_t HALT;				/*!< Halt Register */
+		__IO uint32_t HALT_U;			/*!< halt Register */
 		struct {
 			__IO uint16_t HALT_L;		/*!< halt register for counter L */
 			__IO uint16_t HALT_H;		/*!< halt register for counter H */
 		};
-
 	};
 
 	union {
-		__IO uint32_t STOP;				/*!< Stop Register */
+		__IO uint32_t STOP_U;			/*!< stop Register */
 		struct {
 			__IO uint16_t STOP_L;		/*!< stop register for counter L */
 			__IO uint16_t STOP_H;		/*!< stop register for counter H */
@@ -88,7 +86,7 @@ typedef struct {
 	};
 
 	union {
-		__IO uint32_t START;			/*!< start Register */
+		__IO uint32_t START_U;			/*!< start Register */
 		struct {
 			__IO uint16_t START_L;		/*!< start register for counter L */
 			__IO uint16_t START_H;		/*!< start register for counter H */
@@ -96,146 +94,145 @@ typedef struct {
 
 	};
 
-	uint32_t RESERVED1[10];				/*!< 0x03C reserved */
+	uint32_t RESERVED1[10];				/*!< 0x018 - 0x03C reserved */
+
 	union {
-		__IO uint32_t COUNT_U;			/*!< counter register */
+		__IO uint32_t COUNT_U;			/*!< counter register (offset 0x040)*/
 		struct {
 			__IO uint16_t COUNT_L;		/*!< counter register for counter L */
 			__IO uint16_t COUNT_H;		/*!< counter register for counter H */
 		};
-
 	};
 
 	union {
-		__IO uint32_t STATE;			/*!< State register */
+		__IO uint32_t STATE_U;			/*!< State register */
 		struct {
 			__IO uint16_t STATE_L;		/*!< state register for counter L */
 			__IO uint16_t STATE_H;		/*!< state register for counter H */
 		};
-
 	};
 
 	__I  uint32_t INPUT;				/*!< input register */
 	union {
-		__IO uint32_t REGMODE;			/*!< RegMode register */
+		__IO uint32_t REGMODE_U;		/*!< RegMode register */
 		struct {
 			__IO uint16_t REGMODE_L;	/*!< match - capture registers mode register L */
 			__IO uint16_t REGMODE_H;	/*!< match - capture registers mode register H */
 		};
-
 	};
 
 	__IO uint32_t OUTPUT;				/*!< output register */
 	__IO uint32_t OUTPUTDIRCTRL;		/*!< output counter direction Control Register */
 	__IO uint32_t RES;					/*!< conflict resolution register */
-	__IO uint32_t DMA0REQUEST;			/*!< DMA0 Request Register */
-	__IO uint32_t DMA1REQUEST;			/*!< DMA1 Request Register */
-	uint32_t RESERVED2[35];
-	__IO uint32_t EVEN;					/*!< event enable register */
+	__IO uint32_t DMAREQ0;				/*!< DMA0 Request Register */
+	__IO uint32_t DMAREQ1;				/*!< DMA1 Request Register */
+
+	uint32_t RESERVED2[35];				/*!< 0x064 - 0x0EC reserved */
+
+	__IO uint32_t EVEN;					/*!< event enable register (offset 0x0F0)*/
 	__IO uint32_t EVFLAG;				/*!< event flag register */
 	__IO uint32_t CONEN;				/*!< conflict enable register */
 	__IO uint32_t CONFLAG;				/*!< conflict flag register */
 	union {
 		__IO union {					/*!< ... Match / Capture value */
-			uint32_t U;					/*!<       SCTMATCH[i].U  Unified 32-bit register */
+			uint32_t U;					/*!<  MATCH[i].U  Unified 32-bit register */
 			struct {
-				uint16_t L;				/*!<       SCTMATCH[i].L  Access to L value */
-				uint16_t H;				/*!<       SCTMATCH[i].H  Access to H value */
+				uint16_t L;				/*!<  MATCH[i].L  Access to L value */
+				uint16_t H;				/*!<  MATCH[i].H  Access to H value */
 			};
-
 		} MATCH[CONFIG_SCT_nRG];
 
 		__I union {
-			uint32_t U;					/*!<       SCTCAP[i].U  Unified 32-bit register */
+			uint32_t U;					/*!<  CAP[i].U  Unified 32-bit register */
 			struct {
-				uint16_t L;				/*!<       SCTCAP[i].L  Access to L value */
-				uint16_t H;				/*!<       SCTCAP[i].H  Access to H value */
+				uint16_t L;				/*!<  CAP[i].L  Access to L value */
+				uint16_t H;				/*!<  CAP[i].H  Access to H value */
 			};
-
 		} CAP[CONFIG_SCT_nRG];
-
 	};
 
-	uint32_t RESERVED3[32 - CONFIG_SCT_nRG];		/*!< ...-0x17C reserved */
-	union {
-		__IO uint16_t MATCH_L[CONFIG_SCT_nRG];		/*!< 0x180-... Match Value L counter */
-		__I  uint16_t CAP_L[CONFIG_SCT_nRG];		/*!< 0x180-... Capture Value L counter */
-	};
+	uint32_t RESERVED3[56];				/*!< 0x120 - 0x1FC reserved */
 
-	uint16_t RESERVED4[32 - CONFIG_SCT_nRG];		/*!< ...-0x1BE reserved */
 	union {
-		__IO uint16_t MATCH_H[CONFIG_SCT_nRG];		/*!< 0x1C0-... Match Value H counter */
-		__I  uint16_t CAP_H[CONFIG_SCT_nRG];		/*!< 0x1C0-... Capture Value H counter */
-	};
-
-	uint16_t RESERVED5[32 - CONFIG_SCT_nRG];		/*!< ...-0x1FE reserved */
-	union {
-		__IO union {					/*!< 0x200-... Match Reload / Capture Control value */
-			uint32_t U;					/*!<       SCTMATCHREL[i].U  Unified 32-bit register */
+		__IO union {					/*!< ...Match Reload / Capture Control value (offset 0x200) */
+			uint32_t U;					/*!<  MATCHREL[i].U  Unified 32-bit register */
 			struct {
-				uint16_t L;				/*!<       SCTMATCHREL[i].L  Access to L value */
-				uint16_t H;				/*!<       SCTMATCHREL[i].H  Access to H value */
+				uint16_t L;				/*!<  MATCHREL[i].L  Access to L value */
+				uint16_t H;				/*!<  MATCHREL[i].H  Access to H value */
 			};
-
 		} MATCHREL[CONFIG_SCT_nRG];
 
 		__IO union {
-			uint32_t U;					/*!<       SCTCAPCTRL[i].U  Unified 32-bit register */
+			uint32_t U;					/*!<  CAPCTRL[i].U  Unified 32-bit register */
 			struct {
-				uint16_t L;				/*!<       SCTCAPCTRL[i].L  Access to L value */
-				uint16_t H;				/*!<       SCTCAPCTRL[i].H  Access to H value */
+				uint16_t L;				/*!<  CAPCTRL[i].L  Access to L value */
+				uint16_t H;				/*!<  CAPCTRL[i].H  Access to H value */
 			};
-
 		} CAPCTRL[CONFIG_SCT_nRG];
-
 	};
 
-	uint32_t RESERVED6[32 - CONFIG_SCT_nRG];		/*!< ...-0x27C reserved */
-	union {
-		__IO uint16_t MATCHREL_L[CONFIG_SCT_nRG];	/*!< 0x280-... Match Reload value L counter */
-		__IO uint16_t CAPCTRL_L[CONFIG_SCT_nRG];	/*!< 0x280-... Capture Control value L counter */
-	};
+	uint32_t RESERVED4[56];				/*!< 0x220 - 0x2FC reserved */
 
-	uint16_t RESERVED7[32 - CONFIG_SCT_nRG];		/*!< ...-0x2BE reserved */
-	union {
-		__IO uint16_t MATCHREL_H[CONFIG_SCT_nRG];	/*!< 0x2C0-... Match Reload value H counter */
-		__IO uint16_t CAPCTRL_H[CONFIG_SCT_nRG];	/*!< 0x2C0-... Capture Control value H counter */
-	};
-
-	uint16_t RESERVED8[32 - CONFIG_SCT_nRG];		/*!< ...-0x2FE reserved */
-	__IO struct {						/*!< 0x300-0x3FC  SCTEVENT[i].STATE / SCTEVENT[i].CTRL*/
+	__IO struct {						/*!< EV[i].STATE / EV[i].CTRL (offset 0x300) */
 		uint32_t STATE;					/*!< Event State Register */
 		uint32_t CTRL;					/*!< Event Control Register */
-	} EVENT[CONFIG_SCT_nEV];
+	} EV[CONFIG_SCT_nEV];
 
-	uint32_t RESERVED9[128 - 2 * CONFIG_SCT_nEV];	/*!< ...-0x4FC reserved */
-	__IO struct {						/*!< 0x500-0x57C  SCTOUT[i].SET / SCTOUT[i].CLR */
+	uint32_t RESERVED5[112];			/*!< 0x340 - 0x4FC reserved */
+
+	__IO struct {						/*!< OUT[i].SET / OUT[i].CLR  (offset 0x500) */
 		uint32_t SET;					/*!< Output n Set Register */
 		uint32_t CLR;					/*!< Output n Clear Register */
 	} OUT[CONFIG_SCT_nOU];
 
-	uint32_t RESERVED10[191 - 2 * CONFIG_SCT_nOU];	/*!< ...-0x7F8 reserved */
-	__I  uint32_t MODULECONTENT;		/*!< 0x7FC Module Content */
 } LPC_SCT_T;
+
+/* Reserved bits masks for registers */
+#define SCT_CONFIG_RESERVED             0xfff80000
+#define SCT_CTRL_RESERVED               ((7<<13)|(7u<<29))
+#define SCT_LIMIT_RESERVED              (~(0x3f|(0x3f<<16))
+#define SCT_HALT_RESERVED               (~(0x3f|(0x3f<<16))
+#define SCT_STOP_RESERVED               (~(0x3f|(0x3f<<16))
+#define SCT_START_RESERVED              (~(0x3f|(0x3f<<16))
+#define SCT_STATE_RESERVED              (~(0x1f|(0x1f<<16))
+#define SCT_INPUT_RESERVED              (~(0xf|(0xf<<16))
+#define SCT_REGMODE_RESERVED            (~(0x1f|(0x1f<<16))
+#define SCT_OUTPUT_RESERVED             (~0xf)
+#define SCT_OUTPUTDIRCTRL_RESERVED      (~0xff)
+#define SCT_RES_RESERVED                (~0xff)
+#define SCT_EVEN_RESERVED               (~0x3f)
+#define SCT_EVFLAG_RESERVED             (~0x3f)
+#define SCT_CONEN_RESERVED              (~0xf)
+#define SCT_CONFLAG_RESERVED            (~(0xf|(3u<<30)))
+#define SCT_CAPCTRL_RESERVED            (~(0x3f|(0x3f<<16)))
+#define SCT_EVn_STATE_RESERVED          (~3)
+#define SCT_EVn_CTRL_RESERVED           (0xff800000)
+#define SCT_OUTn_SET_RESERVED           (~0x3f)
+#define SCT_OUTn_CLR_RESERVED           (~0x3f)
 
 /*
  * @brief Macro defines for SCT configuration register
  */
-#define SCT_CONFIG_16BIT_COUNTER        0x00000000	/*!< Operate as 2 16-bit counters */
-#define SCT_CONFIG_32BIT_COUNTER        0x00000001	/*!< Operate as 1 32-bit counter */
+#define SCT_CONFIG_16BIT_COUNTER        0x00000000				/*!< Operate as 2 16-bit counters */
+#define SCT_CONFIG_32BIT_COUNTER        0x00000001				/*!< Operate as 1 32-bit counter */
 
-#define SCT_CONFIG_CLKMODE_BUSCLK       (0x0 << 1)	/*!< Bus clock */
-#define SCT_CONFIG_CLKMODE_SCTCLK       (0x1 << 1)	/*!< SCT clock */
-#define SCT_CONFIG_CLKMODE_INCLK        (0x2 << 1)	/*!< Input clock selected in CLKSEL field */
-#define SCT_CONFIG_CLKMODE_INEDGECLK    (0x3 << 1)	/*!< Input clock edge selected in CLKSEL field */
+#define SCT_CONFIG_CLKMODE_BUSCLK       (0x0 << 1)				/*!< Bus clock */
+#define SCT_CONFIG_CLKMODE_SCTCLK       (0x1 << 1)				/*!< SCT clock */
+#define SCT_CONFIG_CLKMODE_INCLK        (0x2 << 1)				/*!< Input clock selected in CLKSEL field */
+#define SCT_CONFIG_CLKMODE_INEDGECLK    (0x3 << 1)				/*!< Input clock edge selected in CLKSEL field */
 
-#define SCT_CONFIG_NORELOADL_U          (0x1 << 7)	/*!< Operate as 1 32-bit counter */
-#define SCT_CONFIG_NORELOADH            (0x1 << 8)	/*!< Operate as 1 32-bit counter */
+#define SCT_CONFIG_NORELOAD_U           (0x1 << 7)				/*!< Prevent match register reload */
+#define SCT_CONFIG_NORELOAD_L           (0x1 << 7)				/*!< Prevent lower match register reload */
+#define SCT_CONFIG_NORELOAD_H           (0x1 << 8)				/*!< Prevent upper match register reload */
+
+#define SCT_CONFIG_AUTOLIMIT_U          (0x1 << 17)				/*!< Limits counter(unified) based on MATCH0 */
+#define SCT_CONFIG_AUTOLIMIT_L          (0x1 << 17)				/*!< Limits counter(L) based on MATCH0 */
+#define SCT_CONFIG_AUTOLIMIT_H          (0x1 << 18)				/*!< Limits counter(L) based on MATCH0 */
 
 /*
  * @brief Macro defines for SCT control register
  */
-#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0			/*!< Direction for low or unified counter */
+#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0				/*!< Direction for low or unified counter */
 #define COUNTUP_TO LIMIT_THEN_COUNTDOWN_TO_ZERO 1
 
 #define SCT_CTRL_STOP_L                 (1 << 1)				/*!< Stop low counter */
@@ -244,7 +241,7 @@ typedef struct {
 #define SCT_CTRL_BIDIR_L(x)             (((x) & 0x01) << 4)		/*!< Bidirectional bit */
 #define SCT_CTRL_PRE_L(x)               (((x) & 0xFF) << 5)		/*!< Prescale clock for low or unified counter */
 
-#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0			/*!< Direction for high counter */
+#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0				/*!< Direction for high counter */
 #define COUNTUP_TO LIMIT_THEN_COUNTDOWN_TO_ZERO 1
 #define SCT_CTRL_STOP_H                 (1 << 17)				/*!< Stop high counter */
 #define SCT_CTRL_HALT_H                 (1 << 18)				/*!< Halt high counter */
@@ -388,7 +385,7 @@ STATIC INLINE void Chip_SCT_SetMatchReload(LPC_SCT_T *pSCT, CHIP_SCT_MATCH_REG_T
  */
 STATIC INLINE void Chip_SCT_EnableEventInt(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T evt)
 {
-	pSCT->EVEN |= evt;
+	pSCT->EVEN = evt | (pSCT->EVEN & ~SCT_EVEN_RESERVED);
 }
 
 /**
@@ -399,7 +396,7 @@ STATIC INLINE void Chip_SCT_EnableEventInt(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T evt
  */
 STATIC INLINE void Chip_SCT_DisableEventInt(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T evt)
 {
-	pSCT->EVEN &= ~(evt);
+	pSCT->EVEN &= ~(evt | SCT_EVEN_RESERVED);
 }
 
 /**
@@ -410,7 +407,7 @@ STATIC INLINE void Chip_SCT_DisableEventInt(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T ev
  */
 STATIC INLINE void Chip_SCT_ClearEventFlag(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T evt)
 {
-	pSCT->EVFLAG |= evt;
+	pSCT->EVFLAG = evt | (pSCT->EVFLAG & ~SCT_EVFLAG_RESERVED);
 }
 
 /**
@@ -421,7 +418,7 @@ STATIC INLINE void Chip_SCT_ClearEventFlag(LPC_SCT_T *pSCT, CHIP_SCT_EVENT_T evt
  */
 STATIC INLINE void Chip_SCT_SetControl(LPC_SCT_T *pSCT, uint32_t value)
 {
-	pSCT->CTRL_U |= value;
+	pSCT->CTRL_U = value | (pSCT->CTRL_U & ~SCT_CTRL_RESERVED);
 }
 
 /**
@@ -432,7 +429,7 @@ STATIC INLINE void Chip_SCT_SetControl(LPC_SCT_T *pSCT, uint32_t value)
  */
 STATIC INLINE void Chip_SCT_ClearControl(LPC_SCT_T *pSCT, uint32_t value)
 {
-	pSCT->CTRL_U &= ~(value);
+	pSCT->CTRL_U &= ~(value | SCT_CTRL_RESERVED);
 }
 
 /**

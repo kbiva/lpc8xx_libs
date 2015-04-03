@@ -53,7 +53,8 @@ void Chip_PININT_SetPatternMatchSrc(LPC_PIN_INT_T *pPININT, uint8_t chan, Chip_P
     uint32_t pmsrc_reg;
     
     /* Source source for pattern matching */ 
-    pmsrc_reg = pPININT->PMSRC & ~(PININT_SRC_BITSOURCE_MASK << (PININT_SRC_BITSOURCE_START + (slice * 3)));
+    pmsrc_reg = pPININT->PMSRC & ~((PININT_SRC_BITSOURCE_MASK << (PININT_SRC_BITSOURCE_START + (slice * 3)))
+		| PININT_PMSRC_RESERVED);
 	pPININT->PMSRC = pmsrc_reg | (chan << (PININT_SRC_BITSOURCE_START + (slice * 3)));
 }
 
@@ -64,7 +65,8 @@ void Chip_PININT_SetPatternMatchConfig(LPC_PIN_INT_T *pPININT, Chip_PININT_BITSL
     uint32_t pmcfg_reg;
     
     /* Configure bit slice configuration */
-    pmcfg_reg = pPININT->PMCFG & ~(PININT_SRC_BITCFG_MASK << (PININT_SRC_BITCFG_START + (slice * 3)));
+    pmcfg_reg = pPININT->PMCFG & ~((PININT_SRC_BITCFG_MASK << (PININT_SRC_BITCFG_START + (slice * 3)))
+		| PININT_PMCFG_RESERVED);
     pPININT->PMCFG = pmcfg_reg | (slice_cfg << (PININT_SRC_BITCFG_START + (slice * 3)));
 
     /* If end point is true, enable the bits */
@@ -73,7 +75,7 @@ void Chip_PININT_SetPatternMatchConfig(LPC_PIN_INT_T *pPININT, Chip_PININT_BITSL
         /* By default slice 7 is final component */
 		if (slice != PININTBITSLICE7)
         {
-			pPININT->PMCFG |= (0x1 << slice);
+			pPININT->PMCFG = (0x1 << slice) | (pPININT->PMCFG & ~PININT_PMCFG_RESERVED);
 		}
 	}
 }

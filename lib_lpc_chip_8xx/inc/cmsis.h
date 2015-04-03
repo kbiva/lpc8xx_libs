@@ -71,8 +71,9 @@ extern "C" {
  */
 
 /* Configuration of the Cortex-M0+ Processor and Core Peripherals */
-#define __CM0_REV                 0x0000	/*!< Cortex-M0 Core Revision                          */
+#define __CM0PLUS_REV             0x0001	/*!< Cortex-M0+ Core Revision                          */
 #define __MPU_PRESENT             0			/*!< MPU present or not                               */
+#define __VTOR_PRESENT            1			/*!< VTOR is present in this implementation           */
 #define __NVIC_PRIO_BITS          2			/*!< Number of Bits used for Priority Levels          */
 #define __Vendor_SysTickConfig    0			/*!< Set to 1 if different SysTick Config is used     */
 
@@ -103,7 +104,8 @@ typedef enum {
 	UART2_IRQn                    = 5,		/*!< USART2                                           */
 	Reserved1_IRQn                = 6,		/*!< Reserved Interrupt                               */
 	Reserved2_IRQn                = 7,		/*!< Reserved Interrupt                               */
-	I2C_IRQn                      = 8,		/*!< I2C                                              */
+	I2C0_IRQn                     = 8,		/*!< I2C0                                             */
+	I2C_IRQn                      = 8,		/*!< Alias for I2C0                                   */
 	SCT_IRQn                      = 9,		/*!< SCT                                              */
 	MRT_IRQn                      = 10,		/*!< MRT                                              */
 	CMP_IRQn                      = 11,		/*!< CMP                                              */
@@ -120,13 +122,21 @@ typedef enum {
 	Reserved10_IRQn               = 22,		/*!< Reserved Interrupt                               */
 	Reserved11_IRQn               = 23,		/*!< Reserved Interrupt                               */
 	PININT0_IRQn                  = 24,		/*!< External Interrupt 0                             */
+	PIN_INT0_IRQn                 = 24,		/*!< External Interrupt 0 (alias)                     */
 	PININT1_IRQn                  = 25,		/*!< External Interrupt 1                             */
+	PIN_INT1_IRQn                 = 25,		/*!< External Interrupt 1 (alias)                     */
 	PININT2_IRQn                  = 26,		/*!< External Interrupt 2                             */
+	PIN_INT2_IRQn                 = 26,		/*!< External Interrupt 2 (alias)                     */
 	PININT3_IRQn                  = 27,		/*!< External Interrupt 3                             */
+	PIN_INT3_IRQn                 = 27,		/*!< External Interrupt 3 (alias)                     */
 	PININT4_IRQn                  = 28,		/*!< External Interrupt 4                             */
+	PIN_INT4_IRQn                 = 28,		/*!< External Interrupt 4 (alias)                     */
 	PININT5_IRQn                  = 29,		/*!< External Interrupt 5                             */
+	PIN_INT5_IRQn                 = 29,		/*!< External Interrupt 5 (alias)                     */
 	PININT6_IRQn                  = 30,		/*!< External Interrupt 6                             */
+	PIN_INT6_IRQn                 = 30,		/*!< External Interrupt 6 (alias)                     */
 	PININT7_IRQn                  = 31,		/*!< External Interrupt 7                             */
+	PIN_INT7_IRQn                 = 31,		/*!< External Interrupt 7 (alias)                     */
 } IRQn_Type;
 
 /**

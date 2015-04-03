@@ -67,20 +67,23 @@ typedef struct {
 	__IO uint32_t IRQ_FLAG;
 } LPC_MRT_T;
 
+/* Reserved bits masks for registers */
+#define MRT_CTRL_RESERVED   (~7)
+#define MRT_STAT_RESERVED   (~3)
+
 /**
  * @brief MRT Interrupt Modes enum
  */
 typedef enum MRT_MODE {
 	MRT_MODE_REPEAT =  (0 << 1),	/*!< MRT Repeat interrupt mode */
-	MRT_MODE_ONESHOT = (1 << 1),		/*!< MRT One-shot interrupt mode */
-	MRT_MODE_ONESHOT_BUS_STALL = (2 << 1)		/*!< MRT One-shot bus stall mode */
+	MRT_MODE_ONESHOT = (1 << 1),	/*!< MRT One-shot interrupt mode */
 } MRT_MODE_T;
 
 /**
  * @brief MRT register bit fields & masks
  */
 /* MRT Time interval register bit fields */
-#define MRT_INTVAL_IVALUE        (0x7FFFFFFF)	/* Maximum interval load value and mask */
+#define MRT_INTVAL_IVALUE        (0x7FFFFFFFUL)	/* Maximum interval load value and mask */
 #define MRT_INTVAL_LOAD          (0x80000000UL)	/* Force immediate load of timer interval register bit */
 
 /* MRT Control register bit fields & masks */
@@ -191,7 +194,7 @@ STATIC INLINE bool Chip_MRT_GetEnabled(LPC_MRT_CH_T *pMRT)
  */
 STATIC INLINE void Chip_MRT_SetEnabled(LPC_MRT_CH_T *pMRT)
 {
-	pMRT->CTRL |= MRT_CTRL_INTEN_MASK;
+	pMRT->CTRL = MRT_CTRL_INTEN_MASK | (pMRT->CTRL & ~MRT_CTRL_RESERVED);
 }
 
 /**
@@ -201,7 +204,7 @@ STATIC INLINE void Chip_MRT_SetEnabled(LPC_MRT_CH_T *pMRT)
  */
 STATIC INLINE void Chip_MRT_SetDisabled(LPC_MRT_CH_T *pMRT)
 {
-	pMRT->CTRL &= ~MRT_CTRL_INTEN_MASK;
+	pMRT->CTRL &= ~(MRT_CTRL_INTEN_MASK | MRT_CTRL_RESERVED);
 }
 
 /**
@@ -224,7 +227,7 @@ STATIC INLINE void Chip_MRT_SetMode(LPC_MRT_CH_T *pMRT, MRT_MODE_T mode)
 {
 	uint32_t reg;
 
-	reg = pMRT->CTRL & ~MRT_CTRL_MODE_MASK;
+	reg = pMRT->CTRL & ~(MRT_CTRL_MODE_MASK | MRT_CTRL_RESERVED);
 	pMRT->CTRL = reg | (uint32_t) mode;
 }
 
@@ -265,7 +268,7 @@ STATIC INLINE bool Chip_MRT_IntPending(LPC_MRT_CH_T *pMRT)
  */
 STATIC INLINE void Chip_MRT_IntClear(LPC_MRT_CH_T *pMRT)
 {
-	pMRT->STAT |= MRT_STAT_INTFLAG;
+	pMRT->STAT = MRT_STAT_INTFLAG | (pMRT->STAT & ~MRT_STAT_RESERVED);
 }
 
 /**

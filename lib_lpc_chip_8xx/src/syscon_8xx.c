@@ -39,9 +39,16 @@
 #define PDSLEEPWRMASK   (0x0000FFB7)
 #define PDSLEEPDATMASK  (0x00000048)
 
+#if defined(CHIP_LPC82X)
+/* PDWAKECFG and PDRUNCFG register masks */
+#define PDWAKEUPWRMASK  (0x00006D00)
+#define PDWAKEUPDATMASK (0x000080FF)
+
+#else
 /* PDWAKECFG and PDRUNCFG register masks */
 #define PDWAKEUPWRMASK  (0x00006D10)
 #define PDWAKEUPDATMASK (0x000080EF)
+#endif
 
 /*****************************************************************************
  * Public types/enumerations/variables

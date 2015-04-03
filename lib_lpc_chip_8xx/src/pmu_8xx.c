@@ -35,6 +35,9 @@
  * Private types/enumerations/variables
  ****************************************************************************/
 
+/* Reserved bits mask for SCR register */
+#define SCB_SCR_RESERVED (~(SCB_SCR_SLEEPONEXIT_Msk|SCB_SCR_SLEEPDEEP_Msk|SCB_SCR_SEVONPEND_Msk))
+
 /*****************************************************************************
  * Public types/enumerations/variables
  ****************************************************************************/
@@ -50,7 +53,7 @@
 /* Enter MCU Sleep mode */
 void Chip_PMU_SleepState(LPC_PMU_T *pPMU)
 {
-	SCB->SCR &= ~(1UL << SCB_SCR_SLEEPDEEP_Pos);
+	SCB->SCR = ~(1UL << SCB_SCR_SLEEPDEEP_Pos) & (SCB->SCR & ~SCB_SCR_RESERVED);
 	pPMU->PCON = PMU_PCON_PM_SLEEP;
 
 	/* Enter sleep mode */
@@ -60,7 +63,7 @@ void Chip_PMU_SleepState(LPC_PMU_T *pPMU)
 /* Enter MCU Deep Sleep mode */
 void Chip_PMU_DeepSleepState(LPC_PMU_T *pPMU)
 {
-	SCB->SCR |= (1UL << SCB_SCR_SLEEPDEEP_Pos);
+	SCB->SCR = (1UL << SCB_SCR_SLEEPDEEP_Pos) | (SCB->SCR & ~SCB_SCR_RESERVED);
 	pPMU->PCON = PMU_PCON_PM_DEEPSLEEP;
 
 	/* Enter sleep mode */
@@ -70,7 +73,7 @@ void Chip_PMU_DeepSleepState(LPC_PMU_T *pPMU)
 /* Enter MCU Power down mode */
 void Chip_PMU_PowerDownState(LPC_PMU_T *pPMU)
 {
-	SCB->SCR |= (1UL << SCB_SCR_SLEEPDEEP_Pos);
+	SCB->SCR = (1UL << SCB_SCR_SLEEPDEEP_Pos) | (SCB->SCR & ~SCB_SCR_RESERVED);
 	pPMU->PCON = PMU_PCON_PM_POWERDOWN;
 
 	/* Enter sleep mode */
@@ -80,7 +83,7 @@ void Chip_PMU_PowerDownState(LPC_PMU_T *pPMU)
 /* Enter MCU Deep Power down mode */
 void Chip_PMU_DeepPowerDownState(LPC_PMU_T *pPMU)
 {
-	SCB->SCR |= (1UL << SCB_SCR_SLEEPDEEP_Pos);
+	SCB->SCR = (1UL << SCB_SCR_SLEEPDEEP_Pos) | (SCB->SCR & ~SCB_SCR_RESERVED);
 	pPMU->PCON = PMU_PCON_PM_DEEPPOWERDOWN;
 
 	/* Enter sleep mode */

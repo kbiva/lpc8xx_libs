@@ -49,6 +49,10 @@ typedef struct {			/*!< ACMP Structure */
 	__IO uint32_t  LAD;		/*!< Voltage ladder register */
 } LPC_CMP_T;
 
+/* Reserved bits masks for registers */
+#define ACMP_CTRL_RESERVED   (7|(1<<5)|(1<<7)|(0x3f<<14)|(1<<22)|(1<<24)|(0x1fu<<27))
+#define ACMP_LAD_RESERVED    (~0x7f)
+
 #define ACMP_COMPSA_BIT      (1 << 6)	/* Comparator output control bit */
 #define ACMP_COMPSTAT_BIT    (1 << 21)	/* Comparator status, reflects the state of the comparator output */
 #define ACMP_COMPEDGE_BIT    (1 << 23)	/* Comparator edge-detect status */
@@ -85,7 +89,14 @@ typedef enum CHIP_ACMP_POS_INPUT {
 	ACMP_POSIN_VLO      = (0 << 8),	/*!< Voltage ladder output */
 	ACMP_POSIN_ACMP_I1  = (1 << 8),	/*!< ACMP_I1 pin */
 	ACMP_POSIN_ACMP_I2  = (2 << 8),	/*!< ACMP_I2 pin */
+	ACMP_POSIN_ACMP_I3  = (3 << 8),	/*!< ACMP_I3 pin */
+	ACMP_POSIN_ACMP_I4  = (4 << 8),	/*!< ACMP_I4 pin */
+#if defined(CHIP_LPC82X)
+	ACMP_POSIN_INT_REF  = (5 << 8),	/*!< Internal reference voltage */
+	ACMP_POSIN_ADC_0    = (6 << 8),	/*!< ADC_0 Input */
+#else
 	ACMP_POSIN_INT_REF  = (6 << 8),	/*!< Internal reference voltage */
+#endif
 } ACMP_POS_INPUT_T;
 
 /**
@@ -95,7 +106,14 @@ typedef enum CHIP_ACMP_NEG_INPUT {
 	ACMP_NEGIN_VLO     = (0 << 11),	/*!< Voltage ladder output */
 	ACMP_NEGIN_ACMP_I1 = (1 << 11),	/*!< ACMP_I1 pin */
 	ACMP_NEGIN_ACMP_I2 = (2 << 11),	/*!< ACMP_I2 pin */
+	ACMP_NEGIN_ACMP_I3 = (3 << 11),	/*!< ACMP_I3 pin */
+	ACMP_NEGIN_ACMP_I4 = (4 << 11),	/*!< ACMP_I4 pin */
+#if defined(CHIP_LPC82X)
+	ACMP_NEGIN_INT_REF = (5 << 11),	/*!< Internal reference voltage */
+	ACMP_NEGIN_ADC_0   = (6 << 11),	/*!< ADC_0 Input */
+#else
 	ACMP_NEGIN_INT_REF = (6 << 11)	/*!< Internal reference voltage */
+#endif
 } ACMP_NEG_INPUT_T;
 
 /**
@@ -144,7 +162,7 @@ void Chip_ACMP_SetEdgeSelection(LPC_CMP_T *pACMP, ACMP_EDGESEL_T edgeSel);
  */
 STATIC INLINE void Chip_ACMP_EnableSyncCompOut(LPC_CMP_T *pACMP)
 {
-	pACMP->CTRL |= ACMP_COMPSA_BIT;
+	pACMP->CTRL = ACMP_COMPSA_BIT | (pACMP->CTRL & ~ACMP_CTRL_RESERVED);
 }
 
 /**
@@ -154,7 +172,7 @@ STATIC INLINE void Chip_ACMP_EnableSyncCompOut(LPC_CMP_T *pACMP)
  */
 STATIC INLINE void Chip_ACMP_DisableSyncCompOut(LPC_CMP_T *pACMP)
 {
-	pACMP->CTRL &= ~ACMP_COMPSA_BIT;
+	pACMP->CTRL &= ~(ACMP_COMPSA_BIT | ACMP_CTRL_RESERVED);
 }
 
 /**
@@ -211,7 +229,7 @@ void Chip_ACMP_SetupVoltLadder(LPC_CMP_T *pACMP, uint32_t ladsel, bool ladrefVDD
  */
 STATIC INLINE void Chip_ACMP_EnableVoltLadder(LPC_CMP_T *pACMP)
 {
-	pACMP->LAD |= ACMP_LADENAB_BIT;
+	pACMP->LAD = ACMP_LADENAB_BIT | (pACMP->LAD & ~ACMP_LAD_RESERVED);
 }
 
 /**
@@ -221,7 +239,7 @@ STATIC INLINE void Chip_ACMP_EnableVoltLadder(LPC_CMP_T *pACMP)
  */
 STATIC INLINE void Chip_ACMP_DisableVoltLadder(LPC_CMP_T *pACMP)
 {
-	pACMP->LAD &= ~ACMP_LADENAB_BIT;
+	pACMP->LAD &= ~(ACMP_LADENAB_BIT | ACMP_LAD_RESERVED);
 }
 
 /**
