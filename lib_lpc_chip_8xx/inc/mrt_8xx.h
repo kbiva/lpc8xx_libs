@@ -77,6 +77,7 @@ typedef struct {
 typedef enum MRT_MODE {
 	MRT_MODE_REPEAT =  (0 << 1),	/*!< MRT Repeat interrupt mode */
 	MRT_MODE_ONESHOT = (1 << 1),	/*!< MRT One-shot interrupt mode */
+	MRT_MODE_ONESHOT_BUS_STALL = (2 << 1)		/*!< MRT One-shot bus stall mode */
 } MRT_MODE_T;
 
 /**
