@@ -13,3 +13,6 @@ Communication with indicator is done with SPI.
   IndicatorDisplayHex(0xF6);
   ...
 ```
+
+### Links ###
+More info at: http://wp.me/p31f2I-j2
