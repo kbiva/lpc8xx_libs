@@ -194,6 +194,7 @@ extern const uint32_t ExtRateIn;
 #include "i2cs_8xx.h"
 #include "spim_8xx.h"
 #include "spis_8xx.h"
+#include "irc_8xx.h"
 #ifdef CHIP_LPC82X
 #include "adc_8xx.h"
 #include "dma_8xx.h"

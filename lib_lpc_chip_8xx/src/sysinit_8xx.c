@@ -35,9 +35,6 @@
  * Private types/enumerations/variables
  ****************************************************************************/
 
-/* Enable this definition to use the ROM API for PLL setup */
-// #define USE_ROM_API
-
 /*****************************************************************************
  * Public types/enumerations/variables
  ****************************************************************************/
@@ -45,6 +42,8 @@
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
+#define	CONFIG_MAIN_FREQ		60000000
+#define	CONFIG_SYS_FREQ			MAX_CLOCK_FREQ
 
 /*****************************************************************************
  * Public functions
@@ -53,10 +52,6 @@
 /* Setup system clocking */
 void Chip_SetupXtalClocking(void)
 {
-#if defined(USE_ROM_API)
-	uint32_t cmd[4], resp[2];
-#endif
-
 	/* EXT oscillator < 15MHz */
 	Chip_Clock_SetPLLBypass(false, false);
 
@@ -69,27 +64,12 @@ void Chip_SetupXtalClocking(void)
 	/* Setup FLASH access to 2 clocks (up to 30MHz) */
 	Chip_FMC_SetFLASHAccess(FLASHTIM_30MHZ_CPU);
 
-#if defined(USE_ROM_API)
-	/* Use ROM API for setting up PLL */
-	cmd[0] = Chip_Clock_GetMainOscRate() / 1000;/* in KHz */
-	cmd[1] = 24000000 / 1000;	/* 24MHz system clock rate */
-	cmd[2] = CPU_FREQ_EQU;
-	cmd[3] = 24000000 / 10000;
-	LPC_PWRD_API->set_pll(cmd, resp);
-
-	/* Dead loop on fail */
-	while (resp[0] != PLL_CMD_SUCCESS) {}
-
-#else
 	/* Power down PLL to change the PLL divider ratio */
 	Chip_SYSCTL_PowerDown(SYSCTL_SLPWAKE_SYSPLL_PD);
 
 	/* Configure the PLL M and P dividers */
-	/* Setup PLL for main oscillator rate (FCLKIN = 12MHz) * 2 = 24MHz
-	   MSEL = 1 (this is pre-decremented), PSEL = 2 (for P = 4)
-	   FCLKOUT = FCLKIN * (MSEL + 1) = 12MHz * 2 = 24MHz
-	   FCCO = FCLKOUT * 2 * P = 24MHz * 2 * 4 = 192MHz (within FCCO range) */
-	Chip_Clock_SetupSystemPLL(1, 2);
+	/* Setup PLL for main oscillator rate ((FCLKIN = 12MHz) * 5)/2 = 30MHz */
+	Chip_Clock_SetupSystemPLL(4, 1);
 
 	/* Turn on the PLL by clearing the power down bit */
 	Chip_SYSCTL_PowerUp(SYSCTL_SLPWAKE_SYSPLL_PD);
@@ -97,66 +77,17 @@ void Chip_SetupXtalClocking(void)
 	/* Wait for PLL to lock */
 	while (!Chip_Clock_IsSystemPLLLocked()) {}
 
-	/* Set system clock divider to 1 */
-	Chip_Clock_SetSysClockDiv(1);
+	Chip_Clock_SetSysClockDiv(2);
 
 	/* Set main clock source to the system PLL. This will drive 24MHz
 	   for the main clock and 24MHz for the system clock */
 	Chip_Clock_SetMainClockSource(SYSCTL_MAINCLKSRC_PLLOUT);
-#endif
 }
 
 /* Set up and initialize hardware prior to call to main */
 void Chip_SetupIrcClocking(void)
 {
-#if defined(USE_ROM_API)
-	uint32_t cmd[4], resp[2];
-#endif
-
-	/* Turn on the IRC by clearing the power down bit */
-	Chip_SYSCTL_PowerUp(SYSCTL_SLPWAKE_IRC_PD);
-
-	/* Select the PLL input in the IRC */
-	Chip_Clock_SetSystemPLLSource(SYSCTL_PLLCLKSRC_IRC);
-
-	/* Setup FLASH access to 2 clocks (up to 30MHz) */
-	Chip_FMC_SetFLASHAccess(FLASHTIM_30MHZ_CPU);
-
-#if defined(USE_ROM_API)
-	/* Use ROM API for setting up PLL */
-	cmd[0] = Chip_Clock_GetIntOscRate() / 1000;	/* in KHz */
-	cmd[1] = 24000000 / 1000;	/* 24MHz system clock rate */
-	cmd[2] = CPU_FREQ_EQU;
-	cmd[3] = 24000000 / 10000;	/* Timeout */
-	LPC_PWRD_API->set_pll(cmd, resp);
-
-	/* Dead loop on fail */
-	while (resp[0] != PLL_CMD_SUCCESS) {}
-
-#else
-	/* Power down PLL to change the PLL divider ratio */
-	Chip_SYSCTL_PowerDown(SYSCTL_SLPWAKE_SYSPLL_PD);
-
-	/* Configure the PLL M and P dividers */
-	/* Setup PLL for main oscillator rate (FCLKIN = 12MHz) * 2 = 24MHz
-	   MSEL = 1 (this is pre-decremented), PSEL = 2 (for P = 4)
-	   FCLKOUT = FCLKIN * (MSEL + 1) = 12MHz * 2 = 24MHz
-	   FCCO = FCLKOUT * 2 * P = 24MHz * 2 * 4 = 192MHz (within FCCO range) */
-	Chip_Clock_SetupSystemPLL(1, 2);
-
-	/* Turn on the PLL by clearing the power down bit */
-	Chip_SYSCTL_PowerUp(SYSCTL_SLPWAKE_SYSPLL_PD);
-
-	/* Wait for PLL to lock */
-	while (!Chip_Clock_IsSystemPLLLocked()) {}
-
-	/* Set system clock divider to 1 */
-	Chip_Clock_SetSysClockDiv(1);
-
-	/* Set main clock source to the system PLL. This will drive 24MHz
-	   for the main clock and 24MHz for the system clock */
-	Chip_Clock_SetMainClockSource(SYSCTL_MAINCLKSRC_PLLOUT);
-#endif
+	Chip_IRC_SetFreq(CONFIG_MAIN_FREQ, CONFIG_SYS_FREQ);
 }
 
 /* Set up and initialize hardware prior to call to main */

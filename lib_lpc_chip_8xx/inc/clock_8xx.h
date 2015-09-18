@@ -43,6 +43,9 @@ extern "C" {
 
 /* Internal oscillator frequency */
 #define SYSCTL_IRC_FREQ     (12000000)
+#ifndef MAX_CLOCK_FREQ
+#define MAX_CLOCK_FREQ		(30000000)
+#endif
 
 /**
  * Clock sources for system and USB PLLs

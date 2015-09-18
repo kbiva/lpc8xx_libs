@@ -196,7 +196,7 @@ typedef struct SPIM_XFER {
 /**
  * @brief	SPI master transfer state change handler
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIM_XFER_T structure see notes below
+ * @param	xfer	: Pointer to a SPIM_XFER_T structure see notes below
  * @return	Nothing
  * @note	See @ref SPIM_XFER_T for more information on this function. When using
  * this function, the SPI master interrupts should be enabled and setup in the SPI
@@ -208,7 +208,7 @@ void Chip_SPIM_XferHandler(LPC_SPI_T *pSPI, SPIM_XFER_T *xfer);
 /**
  * @brief	Start non-blocking SPI master transfer
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIM_XFER_T structure see notes below
+ * @param	xfer	: Pointer to a SPIM_XFER_T structure see notes below
  * @return	Nothing
  * @note	This function starts a non-blocking SPI master transfer with the
  * parameters setup in the passed @ref SPIM_XFER_T structure. Once the transfer is
@@ -242,7 +242,7 @@ void Chip_SPIM_Xfer(LPC_SPI_T *pSPI, SPIM_XFER_T *xfer);
 /**
  * @brief	Perform blocking SPI master transfer
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIM_XFER_T structure see notes below
+ * @param	xfer	: Pointer to a SPIM_XFER_T structure see notes below
  * @return	Nothing
  * @note	This function starts a blocking SPI master transfer with the
  * parameters setup in the passed @ref SPIM_XFER_T structure. Once the transfer is

@@ -114,7 +114,7 @@ typedef struct SPIS_XFER {
 /**
  * @brief	SPI slave transfer state change handler
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIS_XFER_T structure see notes below
+ * @param	xfer	: Pointer to a SPIS_XFER_T structure see notes below
  * @return	returns 0 on success, or SPI_STAT_RXOV and/or SPI_STAT_TXUR on an error
  * @note	See @ref SPIS_XFER_T for more information on this function. When using
  * this function, the SPI slave interrupts should be enabled and setup in the SPI
@@ -131,7 +131,7 @@ uint32_t Chip_SPIS_XferHandler(LPC_SPI_T *pSPI, SPIS_XFER_T *xfer);
 /**
  * @brief	Pre-buffers slave transmit data
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIS_XFER_T structure see notes below
+ * @param	xfer	: Pointer to a SPIS_XFER_T structure see notes below
  * @return	Nothing
  * @note Pre-buffering allows the slave to prime the transmit FIFO with data prior to
  * the master starting a transfer. If data is not pre-buffered, the initial slave
@@ -147,7 +147,7 @@ STATIC INLINE void Chip_SPIS_PreBuffSlave(LPC_SPI_T *pSPI, SPIS_XFER_T *xfer)
 /**
  * @brief	SPI slave transfer blocking function
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	xfers	: Pointer to a SPIS_XFER_T structure
+ * @param	xfer	: Pointer to a SPIS_XFER_T structure
  * @return	returns 0 on success, or SPI_STAT_RXOV and/or SPI_STAT_TXUR on an error
  * @note	This function performs a blocking transfer on the SPI slave interface.
  * It is not recommended to use this function. Once this function is called, it

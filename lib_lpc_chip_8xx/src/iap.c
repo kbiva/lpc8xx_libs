@@ -103,7 +103,7 @@ uint8_t Chip_IAP_BlankCheckSector(uint32_t strSector, uint32_t endSector)
 }
 
 /* Read part identification number */
-uint32_t Chip_IAP_ReadPID()
+uint32_t Chip_IAP_ReadPID(void)
 {
 	uint32_t command[5], result[5];
 
@@ -114,14 +114,14 @@ uint32_t Chip_IAP_ReadPID()
 }
 
 /* Read boot code version number */
-uint8_t Chip_IAP_ReadBootCode()
+uint32_t Chip_IAP_ReadBootCode(void)
 {
 	uint32_t command[5], result[5];
 
 	command[0] = IAP_READ_BOOT_CODE_CMD;
 	iap_entry(command, result);
 
-	return result[0];
+	return result[1] & 0xffff;
 }
 
 /* IAP compare */
@@ -139,7 +139,7 @@ uint8_t Chip_IAP_Compare(uint32_t dstAdd, uint32_t srcAdd, uint32_t bytescmp)
 }
 
 /* Reinvoke ISP */
-uint8_t Chip_IAP_ReinvokeISP()
+uint8_t Chip_IAP_ReinvokeISP(void)
 {
 	uint32_t command[5], result[5];
 
@@ -150,14 +150,18 @@ uint8_t Chip_IAP_ReinvokeISP()
 }
 
 /* Read the unique ID */
-uint32_t Chip_IAP_ReadUID()
+uint32_t Chip_IAP_ReadUID(uint32_t* uid)
 {
 	uint32_t command[5], result[5];
-
+	uint32_t i;
+	
 	command[0] = IAP_READ_UID_CMD;
 	iap_entry(command, result);
 
-	return result[1];
+	for (i=0; i<4; i++)
+		*(uid+i) = result[i+1];
+	
+	return result[0];
 }
 
 /* Erase page */

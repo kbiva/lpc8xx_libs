@@ -414,7 +414,7 @@ STATIC INLINE void Chip_SPI_ClearStatus(LPC_SPI_T *pSPI, uint32_t Flag)
 /**
  * @brief	Enable a SPI interrupt
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	intMask	: Or'ed value of SPI_INTENSET_* values to enable
+ * @param	Flag	: Or'ed value of SPI_INTENSET_* values to enable
  * @return	Nothing
  */
 STATIC INLINE void Chip_SPI_EnableInts(LPC_SPI_T *pSPI, uint32_t Flag)
@@ -425,7 +425,7 @@ STATIC INLINE void Chip_SPI_EnableInts(LPC_SPI_T *pSPI, uint32_t Flag)
 /**
  * @brief	Disable a SPI interrupt
  * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	intMask	: Or'ed value of SPI_INTENCLR_* values to disable
+ * @param	Flag	: Or'ed value of SPI_INTENCLR_* values to disable
  * @return	Nothing
  */
 STATIC INLINE void Chip_SPI_DisableInts(LPC_SPI_T *pSPI, uint32_t Flag)
@@ -557,8 +557,8 @@ STATIC INLINE void Chip_SPI_ClearTXCtl(LPC_SPI_T *pSPI, uint32_t ctrlBits)
 
 /**
  * @brief	Set TX data transfer size in bits
- * @param	pSPI	: The base of SPI peripheral on the chip
- * @param	numBits	: Number of bits to transmit and receive, must be 1 to 16
+ * @param	pSPI		: The base of SPI peripheral on the chip
+ * @param	ctrlBits	: Number of bits to transmit and receive, must be 1 to 16
  * @return	Nothing
  */
 STATIC INLINE void Chip_SPI_SetXferSize(LPC_SPI_T *pSPI, uint32_t ctrlBits)

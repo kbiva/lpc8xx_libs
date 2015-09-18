@@ -300,7 +300,7 @@ STATIC INLINE void Chip_I2CS_DisableSlaveAddr(LPC_I2C_T *pI2C, uint8_t slvNum)
  * @brief	Setup slave qialifier address
  * @param	pI2C	: Pointer to selected I2C peripheral
  * @param	extend	: true to extend I2C slave detect address 0 range, or false to match to corresponding bits
- * @param	slvAddr	: Slave address qualifier, see SLVQUAL0 register in User Manual
+ * @param	slvNum	: Slave address qualifier, see SLVQUAL0 register in User Manual
  * @return	Nothing
  * @note	Do not 'pre-shift' the slave address.
  */

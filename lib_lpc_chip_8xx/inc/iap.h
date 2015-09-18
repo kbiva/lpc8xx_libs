@@ -93,8 +93,8 @@ uint8_t Chip_IAP_PreSectorForReadWrite(uint32_t strSector, uint32_t endSector);
 
 /**
  * @brief	Copy RAM to flash
- * @param	dstAdd		: Destination flash address where data bytes are to be written
- * @param	srcAdd		: Source flash address where data bytes are to be read
+ * @param	dstAdd		: Destination FLASH address where data bytes are to be written
+ * @param	srcAdd		: Source RAM address where data bytes are to be read
  * @param	byteswrt	: Number of bytes to be written
  * @return	Status code to indicate the command is executed successfully or not
  * @note	The addresses should be a 256 byte boundary and the number of bytes
@@ -134,7 +134,7 @@ uint32_t Chip_IAP_ReadPID(void);
  * @brief	Read boot code version number
  * @return	Boot code version number
  */
-uint8_t Chip_IAP_ReadBootCode(void);
+uint32_t Chip_IAP_ReadBootCode(void);
 
 /**
  * @brief	Compare the memory contents at two locations
@@ -157,7 +157,7 @@ uint8_t Chip_IAP_ReinvokeISP(void);
  * @brief	Read the unique ID
  * @return	Status code to indicate the command is executed successfully or not
  */
-uint32_t Chip_IAP_ReadUID(void);
+uint32_t Chip_IAP_ReadUID(uint32_t* uid);
 
 /**
  * @brief	Erase a page or multiple papers of on-chip flash memory

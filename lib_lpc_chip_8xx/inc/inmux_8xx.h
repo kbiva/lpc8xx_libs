@@ -94,7 +94,7 @@ STATIC INLINE void Chip_INMUX_SetDMAOTrig(LPC_INMUX_T *pINMUX, DMA_INMUX_T imux,
  * @brief	Select a trigger source SCT module
  * @param	pINMUX	: The base of INPUT MUX register block
  * @param	isct	: Index of SCT input mux
- * @param	func	: SCT Input function that will cause the trigger
+ * @param	trig	: SCT Input function that will cause the trigger
  * @return	Nothing
  */
 STATIC INLINE void Chip_INMUX_SetSCTInMux(LPC_INMUX_T *pINMUX, SCT_INMUX_T isct, SCT_INP_T trig)
