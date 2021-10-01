@@ -144,7 +144,7 @@ int Chip_UART_ReadBlocking(LPC_USART_T *pUART, void *data, int numBytes)
 	int pass, readBytes = 0;
 	uint8_t *p8 = (uint8_t *) data;
 
-	while (readBytes < numBytes) {
+	while (numBytes > 0) {
 		pass = Chip_UART_Read(pUART, p8, numBytes);
 		numBytes -= pass;
 		readBytes += pass;

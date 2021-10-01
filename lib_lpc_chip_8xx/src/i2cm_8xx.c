@@ -108,7 +108,8 @@ uint32_t Chip_I2CM_XferHandler(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 		switch (Chip_I2CM_GetMasterState(pI2C)) {
 		/* Master idle */
 		case I2C_STAT_MSTCODE_IDLE:
-			/* Do Nothing */
+			/* Master job is done, disable this IRQ */
+			Chip_I2C_ClearInt(pI2C, I2C_INTENSET_MSTPENDING);
 			break;
 
 		/* Receive data is available */

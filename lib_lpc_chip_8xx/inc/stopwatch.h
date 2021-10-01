@@ -32,8 +32,6 @@
 #ifndef __STOPWATCH_H_
 #define __STOPWATCH_H_
 
-#include "cmsis.h"
-
 /** @defgroup Stop_Watch CHIP: Stopwatch primitives.
  * @ingroup CHIP_Common
  * @{

@@ -32,9 +32,68 @@
 #ifndef __CHIP_H_
 #define __CHIP_H_
 
+typedef enum {
+	/******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
+	Reset_IRQn                    = -15,	/*!< 1 Reset Vector, invoked on Power up and warm reset */
+	NonMaskableInt_IRQn           = -14,	/*!< 2 Non Maskable Interrupt                           */
+	HardFault_IRQn                = -13,	/*!< 3 Cortex-M0 Hard Fault Interrupt                   */
+	SVCall_IRQn                   = -5,		/*!< 11 Cortex-M0 SV Call Interrupt                     */
+	PendSV_IRQn                   = -2,		/*!< 14 Cortex-M0 Pend SV Interrupt                     */
+	SysTick_IRQn                  = -1,		/*!< 15 Cortex-M0 System Tick Interrupt                 */
+
+	/******  LPC8xx Specific Interrupt Numbers ********************************************************/
+	SPI0_IRQn                     = 0,		/*!< SPI0                                             */
+	SPI1_IRQn                     = 1,		/*!< SPI1                                             */
+	Reserved0_IRQn                = 2,		/*!< Reserved Interrupt                               */
+	UART0_IRQn                    = 3,		/*!< USART0                                           */
+	UART1_IRQn                    = 4,		/*!< USART1                                           */
+	UART2_IRQn                    = 5,		/*!< USART2                                           */
+	Reserved1_IRQn                = 6,		/*!< Reserved Interrupt                               */
+	Reserved2_IRQn                = 7,		/*!< Reserved Interrupt                               */
+	I2C0_IRQn                     = 8,		/*!< I2C0                                             */
+	I2C_IRQn                      = 8,		/*!< Alias for I2C0                                   */
+	SCT_IRQn                      = 9,		/*!< SCT                                              */
+	MRT_IRQn                      = 10,		/*!< MRT                                              */
+	CMP_IRQn                      = 11,		/*!< CMP                                              */
+	WDT_IRQn                      = 12,		/*!< WDT                                              */
+	BOD_IRQn                      = 13,		/*!< BOD                                              */
+	FLASH_IRQn                    = 14,		/*!< Flash interrupt                                  */
+	WKT_IRQn                      = 15,		/*!< WKT Interrupt                                    */
+	Reserved4_IRQn                = 16,		/*!< Reserved Interrupt                               */
+	Reserved5_IRQn                = 17,		/*!< Reserved Interrupt                               */
+	Reserved6_IRQn                = 18,		/*!< Reserved Interrupt                               */
+	Reserved7_IRQn                = 19,		/*!< Reserved Interrupt                               */
+	Reserved8_IRQn                = 20,		/*!< Reserved Interrupt                               */
+	Reserved9_IRQn                = 21,		/*!< Reserved Interrupt                               */
+	Reserved10_IRQn               = 22,		/*!< Reserved Interrupt                               */
+	Reserved11_IRQn               = 23,		/*!< Reserved Interrupt                               */
+	PININT0_IRQn                  = 24,		/*!< External Interrupt 0                             */
+	PIN_INT0_IRQn                 = 24,		/*!< External Interrupt 0 (alias)                     */
+	PININT1_IRQn                  = 25,		/*!< External Interrupt 1                             */
+	PIN_INT1_IRQn                 = 25,		/*!< External Interrupt 1 (alias)                     */
+	PININT2_IRQn                  = 26,		/*!< External Interrupt 2                             */
+	PIN_INT2_IRQn                 = 26,		/*!< External Interrupt 2 (alias)                     */
+	PININT3_IRQn                  = 27,		/*!< External Interrupt 3                             */
+	PIN_INT3_IRQn                 = 27,		/*!< External Interrupt 3 (alias)                     */
+	PININT4_IRQn                  = 28,		/*!< External Interrupt 4                             */
+	PIN_INT4_IRQn                 = 28,		/*!< External Interrupt 4 (alias)                     */
+	PININT5_IRQn                  = 29,		/*!< External Interrupt 5                             */
+	PIN_INT5_IRQn                 = 29,		/*!< External Interrupt 5 (alias)                     */
+	PININT6_IRQn                  = 30,		/*!< External Interrupt 6                             */
+	PIN_INT6_IRQn                 = 30,		/*!< External Interrupt 6 (alias)                     */
+	PININT7_IRQn                  = 31,		/*!< External Interrupt 7                             */
+	PIN_INT7_IRQn                 = 31,		/*!< External Interrupt 7 (alias)                     */
+} IRQn_Type;
+
+/* Configuration of the Cortex-M0+ Processor and Core Peripherals */
+#define __MPU_PRESENT             0         /*!< MPU present or not                               */
+#define __NVIC_PRIO_BITS          2         /*!< Number of Bits used for Priority Levels          */
+#define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
+
+#include "core_cm0plus.h"                  /* Cortex-M0+ processor and core peripherals          */
 #include "lpc_types.h"
 #include "sys_config.h"
-#include "cmsis.h"
+//#include "LPC8xx.h"
 
 #ifdef __cplusplus
 extern "C" {
