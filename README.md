@@ -11,8 +11,16 @@ Various libraries for the LPC800 Mini-Kit and LPC Expresso 812 boards, used by m
 Library to control 2.5 digits 7-segment LED indicator.
 
 * lib_DS18B20
-  
+
 DS18D20 digital temperature sensor library. Depends on lib_1-Wire.
+
+* lib_lpc800_mini_board
+
+LPC800 Mini-Kit board library.
+
+* lib_lpc812_micro_board
+
+LPC812 microboard library.
   
 * lib_lpc_chip_8xx
 
