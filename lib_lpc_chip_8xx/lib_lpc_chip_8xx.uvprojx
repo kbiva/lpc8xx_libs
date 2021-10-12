@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>LPC812M101JD20</Device>
           <Vendor>NXP</Vendor>
-          <PackID>Keil.LPC800_DFP.1.2.0</PackID>
+          <PackID>Keil.LPC800_DFP.1.10.1</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IROM(0x00000000,0x4000) IRAM(0x10000000,0x1000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -48,14 +48,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\</OutputDirectory>
+          <OutputDirectory>.\Objects\</OutputDirectory>
           <OutputName>lib_lpc_chip_8xx</OutputName>
           <CreateExecutable>0</CreateExecutable>
           <CreateLib>1</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\</ListingPath>
+          <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>CORE_M0PLUS</Define>
               <Undefine></Undefine>
-              <IncludePath>.\inc;D:\Keil_v5\ARM\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include;D:\Keil_v5\ARM\Packs\Keil\LPC800_DFP\1.10.1\Device\Include</IncludePath>
+              <IncludePath>.\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -399,9 +399,19 @@
               <FilePath>.\inc\clock_8xx.h</FilePath>
             </File>
             <File>
+              <FileName>cmsis.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\cmsis.h</FilePath>
+            </File>
+            <File>
               <FileName>crc_8xx.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\inc\crc_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\eeprom.h</FilePath>
             </File>
             <File>
               <FileName>error_8xx.h</FileName>
@@ -447,6 +457,11 @@
               <FileName>iocon_8xx.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\inc\iocon_8xx.h</FilePath>
+            </File>
+            <File>
+              <FileName>irc_8xx.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\irc_8xx.h</FilePath>
             </File>
             <File>
               <FileName>lpc_types.h</FileName>
@@ -563,16 +578,6 @@
               <FileType>5</FileType>
               <FilePath>.\inc\wwdt_8xx.h</FilePath>
             </File>
-            <File>
-              <FileName>cmsis.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\inc\cmsis.h</FilePath>
-            </File>
-            <File>
-              <FileName>irc_8xx.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\inc\irc_8xx.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -597,6 +602,11 @@
               <FileName>crc_8xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\crc_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\eeprom.c</FilePath>
             </File>
             <File>
               <FileName>gpio_8xx.c</FileName>
@@ -627,6 +637,11 @@
               <FileName>iocon_8xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\iocon_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>irc_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\irc_8xx.c</FilePath>
             </File>
             <File>
               <FileName>pinint_8xx.c</FileName>
@@ -708,12 +723,10 @@
               <FileType>1</FileType>
               <FilePath>.\src\wwdt_8xx.c</FilePath>
             </File>
-            <File>
-              <FileName>irc_8xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\irc_8xx.c</FilePath>
-            </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>
@@ -721,8 +734,24 @@
 
   <RTE>
     <apis/>
-    <components/>
+    <components>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.5.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.8.0"/>
+        <targetInfos>
+          <targetInfo name="lib_lpc_chip_8xx"/>
+        </targetInfos>
+      </component>
+    </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>lib_lpc_chip_8xx</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

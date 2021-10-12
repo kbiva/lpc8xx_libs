@@ -46,9 +46,9 @@ extern "C" {
 
 #if defined(__ARMCC_VERSION)
 // Kill warning "#pragma push with no matching #pragma pop"
-  #pragma diag_suppress 2525
-  #pragma push
-  #pragma anon_unions
+//  #pragma diag_suppress 2525
+//  #pragma push
+//  #pragma anon_unions
 #elif defined(__CWCC__)
   #pragma push
   #pragma cpp_extensions on
