@@ -9,7 +9,7 @@
 #include "usart.h"
 #include <stdio.h>
 
-struct __FILE {int handle;};
+//struct __FILE {int handle;};
 FILE __stdout;
 FILE __stdin;
 
