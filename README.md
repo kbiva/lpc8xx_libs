@@ -22,10 +22,6 @@ LPCOpen library for LPC8xx.
 
 NXP LPCXpresso LPC812 board library.
 
-* lib_TNeo
-
-A real-time kernel (RTOS) library. https://bitbucket.org/dfrank/tneokernel
-
 * lib_usart
 
 USART0 library with retargeting.
