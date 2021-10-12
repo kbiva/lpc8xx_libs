@@ -9,17 +9,13 @@
 
 #include <stdint.h>
 
-// SPI0
-#define INDICATOR_SCLK_Pin 15
-#define INDICATOR_MOSI_Pin 16
+void Init_2_5_Digits_Indicator(uint8_t SCLK_Pin,uint8_t MOSI_Pin);
 
-void Init_2_5_Digits_Indicator(void);
-
-void IndicatorClear(void);
-void IndicatorDisplayDec(uint8_t val);
-void IndicatorDisplayDecLZ(uint8_t val);// with leading zero
-void IndicatorDisplayHex(uint16_t val);
-void IndicatorDisplayHexLZ(uint16_t val);// with leading zero
-void IndicatorDisplayMinus(void);
+void Indicator_Clear(void);
+void Indicator_Display_Dec(uint8_t val);
+void Indicator_Display_Dec_LZ(uint8_t val);// with leading zero
+void Indicator_Display_Hex(uint16_t val);
+void Indicator_Display_Hex_LZ(uint16_t val);// with leading zero
+void Indicator_Display_Minus(void);
 
 #endif
