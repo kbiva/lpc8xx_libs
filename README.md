@@ -30,6 +30,10 @@ LPCOpen library for LPC8xx.
 
 NXP LPCXpresso LPC812 board library.
 
+* lib_TNeo
+
+TNeo: a well-formed and carefully tested preemptive real-time kernel for 16- and 32-bits MCUs
+
 * lib_usart
 
 USART0 library with retargeting.
@@ -37,4 +41,3 @@ USART0 library with retargeting.
 * lib_xprintf
 
 Universal string handler for user console interface  (C)ChaN, 2011
-
